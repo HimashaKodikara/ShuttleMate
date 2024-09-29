@@ -10,7 +10,7 @@ export default function Login() {
 
   return (
     <div>
-      <h1>Login Page</h1>
+      <h1 className=' bg-red-800'>Login Page</h1>
       <form >
         <input 
           type="email" 
