@@ -6,20 +6,12 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulate login logic
-    if (email === 'test@test.com' && password === 'password') {
-      navigate('/home');
-    } else {
-      alert('Invalid credentials');
-    }
-  };
+  
 
   return (
     <div>
       <h1>Login Page</h1>
-      <form onSubmit={handleSubmit}>
+      <form >
         <input 
           type="email" 
           placeholder="Email" 
@@ -32,7 +24,7 @@ export default function Login() {
           value={password} 
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Login</button>
+        <button type="submit"><Link to="/home">Login</Link></button>
       </form>
       <p>Don't have an account? <Link to="/register">Register</Link></p>
     </div>
