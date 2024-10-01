@@ -1,17 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simulate registration logic
+    alert('User registered successfully');
+    navigate('/login');
+  };
 
   return (
     <div>
-      <h1 className=' bg-red-800'>Login Page</h1>
-      <form >
+      <h1>Register Page</h1>
+      <form onSubmit={handleSubmit}>
         <input 
           type="email" 
           placeholder="Email" 
@@ -24,9 +29,9 @@ export default function Login() {
           value={password} 
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit"><Link to="/home">Login</Link></button>
+        <button type="submit">Register</button>
       </form>
-      <p>Don't have an account? <Link to="/register">Register</Link></p>
+      <p>Already have an account? <Link to="/home">Login</Link></p>
     </div>
   );
 }
