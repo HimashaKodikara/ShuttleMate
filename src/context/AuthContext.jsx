@@ -18,14 +18,14 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return unsubscribe; // Unsubscribe from the listener on unmount
+    return unsubscribe; 
   }, []);
 
   const value = { currentUser };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children} {/* Only render children when not loading */}
+      {!loading && children} 
     </AuthContext.Provider>
   );
 };
