@@ -65,7 +65,7 @@ const Login = () => {
       await googleSignIn();
       Swal.fire({
         title: 'Success!',
-        text: 'You have logged in successfully with Google.',
+        text: 'You have logged in successfully.',
         icon: 'success',
         confirmButtonText: 'Okay',
       });

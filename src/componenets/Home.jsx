@@ -9,7 +9,7 @@ const Home = () => {
     { id: 1, title: 'Upload Video', image:images.player, link: '/card1' },
     { id: 2, title: 'Coachers', image: images.coach, link: '/card2' },
     { id: 3, title: 'Courts', image: images.court, link: '/card3' },
-    { id: 4, title: 'Card 4', image: 'https://via.placeholder.com/150', link: '/card4' },
+    { id: 4, title: 'Card 4', image: images.Shops, link: '/card4' },
   ];
 
   return (

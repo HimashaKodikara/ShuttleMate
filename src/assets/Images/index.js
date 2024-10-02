@@ -4,6 +4,7 @@ import Bg from './Bg.jpg'
 import player from './player.jpg';
 import coach from './coach.jpg';
 import court from './Court.jpg';
+import Shops from './Shops.jpg';
 
 const images = {
     Google,
@@ -11,7 +12,8 @@ const images = {
     ,Bg,
     player,
     coach,
-    court
+    court,
+    Shops
   };
   
   export default images; 
