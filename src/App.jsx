@@ -5,6 +5,7 @@ import Login from './componenets/Login';
 import Register from './componenets/Register';
 import Home from './componenets/Home';
 import Splashscreen from './componenets/Splashscreen';
+import VideoPage from './componenets/VideoPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path='/Videopage' element={<VideoPage/>}/>
         </Routes>
       </div>
     </AuthProvider>
