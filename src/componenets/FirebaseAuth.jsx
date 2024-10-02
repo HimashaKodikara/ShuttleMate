@@ -1,8 +1,9 @@
 // src/components/FirebaseAuth.js
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut ,GoogleAuthProvider} from "firebase/auth";
 import { auth, provider } from "../firebase/firebaseconfig";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
-// Email/Password Sign-in
+
 export const login = async (email, password) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
@@ -36,4 +37,18 @@ export const logout = async () => {
   } catch (error) {
     throw new Error(error.message);
   }
+};
+
+
+//Reset password
+export const resetPassword = (email) => {
+  const auth = getAuth();
+  return sendPasswordResetEmail(auth, email);
+};
+
+
+// Google Registration/Sign-in
+const googleProvider = new GoogleAuthProvider();
+export const signInWithGoogle = () => {
+  return signInWithPopup(auth, googleProvider);
 };

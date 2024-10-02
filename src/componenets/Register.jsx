@@ -1,6 +1,6 @@
 // src/components/Register.js
 import { useState } from "react";
-import { register } from "./FirebaseAuth";
+import { register, signInWithGoogle } from "./FirebaseAuth";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -13,6 +13,15 @@ const Register = () => {
     e.preventDefault();
     try {
       await register(email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    try {
+      await signInWithGoogle();
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);
@@ -40,6 +49,8 @@ const Register = () => {
         />
         <button type="submit">Register</button>
       </form>
+      <hr />
+      <button onClick={handleGoogleRegister}>Register with Google</button>
     </div>
   );
 };
