@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import images from '../assets/Images/index.js'; // Ensure images.Bg points to a valid image path
 
 const Splashscreen = () => {
   const navigate = useNavigate();
@@ -14,25 +14,27 @@ const Splashscreen = () => {
   };
 
   return (
-    <div className="relative flex h-screen bg-center " style={{ backgroundImage: "url('https://wallpapercave.com/wp/wp1852917.jpg')" }}>
+    <div
+      className="flex items-center justify-center h-screen bg-center bg-cover"
+      style={{ backgroundImage: `url(${images.Bg})` }} // Apply background image here
+    >
       <div className="absolute inset-0 bg-black opacity-20"></div> 
-      <div className="relative z-10 mt-16 ml-12 text-white">
-        <h1 className="mb-6 font-serif font-black text-9xl">Shuttlemate</h1>
-        <div className="">
+      <div className="relative z-10 text-center text-white">
+        <h1 className="mb-12 font-serif font-black text-9xl">Shuttlemate</h1>
+        <div className="flex flex-col items-center">
           <button
             onClick={handleLoginClick}
-            className="px-4 py-4 mt-20 font-serif text-5xl font-bold text-white bg-green-600 ml-44 rounded-3xl hover:bg-green-500"
+            className="py-4 mb-8 font-serif text-4xl font-bold text-white bg-green-600 px-14 rounded-3xl hover:bg-green-500"
           >
             Login
           </button>
-         
-        </div>
-        <button
+          <button
             onClick={handleSignUpClick}
-            className="px-4 py-4 mt-20 font-serif text-5xl font-bold text-white bg-green-500 ml-36 rounded-3xl hover:bg-green-600"
+            className="px-8 py-4 font-serif text-4xl font-bold text-white bg-green-500 rounded-3xl hover:bg-green-600"
           >
             Sign Up
           </button>
+        </div>
       </div>
     </div>
   );

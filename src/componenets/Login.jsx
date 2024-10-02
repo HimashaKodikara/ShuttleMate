@@ -3,7 +3,7 @@ import { login, googleSignIn, resetPassword } from './FirebaseAuth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import images from '../assets/Images/index.js'; // Adjust as needed
+import images from '../assets/Images/index.js'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -81,7 +81,8 @@ const Login = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-center h-screen bg-center " style={{ backgroundImage: "url('https://wallpapercave.com/wp/wp1852917.jpg')" }}>
+    <div  className="flex items-center justify-center h-screen bg-center bg-cover"
+    style={{ backgroundImage: `url(${images.Bg})` }}  >
       <div className="w-1/3 ">
      
         <div className="w-full p-8 bg-white rounded-lg shadow-md">
