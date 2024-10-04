@@ -17,7 +17,7 @@ const Home = () => {
             {/* Table */}
             <div className="mx-16 overflow-x-auto">
                 <table className="min-w-full text-center rounded-lg shadow-lg table-auto bg-slate-800">
-                    <thead className="text-white bg-slate-700">
+                    <thead className="text-white bg-blue-900">
                         <tr>
                             <th className="px-6 py-4">Name of Video</th>
                             <th className="px-6 py-4">Video By</th>
@@ -49,8 +49,8 @@ const Home = () => {
                                 </button>
                             </td>
                             <td className="px-6 py-4">
-                                <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105">
-                                    Delete
+                                <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-white rounded-full hover:scale-105">
+                                    <img src={images.Bin} height={20} width={20}/>
                                 </button>
                             </td>
                         </tr>
