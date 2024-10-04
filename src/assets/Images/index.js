@@ -6,6 +6,7 @@ import coach from './coach.jpg';
 import court from './Court.jpg';
 import Shops from './Shops.jpg';
 import Bin from './icons/bin.png'
+import Edit from './icons/edit.png'
 
 const images = {
     Google,
@@ -15,7 +16,8 @@ const images = {
     coach,
     court,
     Shops,
-    Bin
+    Bin,
+    Edit
   };
   
   export default images; 
