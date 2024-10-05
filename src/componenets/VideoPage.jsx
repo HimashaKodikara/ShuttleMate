@@ -81,7 +81,7 @@ const VideoPage = () => {
             console.log('Thumbnail URL:', thumbnailURL);
     
             // Post the data to the backend
-            await axios.post(`http://localhost:5000/api/videos`, { ...input });
+            await axios.post(`http://localhost:5001/api/videos`, { ...input });
     
             // Reset form and close modal
             setFormData({
