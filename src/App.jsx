@@ -6,6 +6,7 @@ import Register from './componenets/Register';
 import Home from './componenets/Home';
 import Splashscreen from './componenets/Splashscreen';
 import VideoPage from './componenets/VideoPage';
+import Coachers from './componenets/Coachers';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
           <Route path='/Videopage' element={<VideoPage/>}/>
+          <Route path ='/Coachers' element= {<Coachers/>}/>
         </Routes>
       </div>
     </AuthProvider>
