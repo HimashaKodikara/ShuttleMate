@@ -1,232 +1,270 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig'; // Import Firebase storage
-import images from '../assets/Images';
 import axios from 'axios';
+import { useTable } from 'react-table'; // Import useTable from react-table
 
 const VideoPage = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [videos, setVideos] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    videoName: '',
+    videoCreator: '',
+    videoFile: null,
+    thumbnail: null,
+  });
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
-    const [input, setinput] = useState({});
-    const [formData, setFormData] = useState({
-        videoName: '',
-        videoCreator: '',
-        videoFile: null,
-        thumbnail: null,
+  // Fetch videos from the backend
+  const fetchVideos = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/videos'); // API URL
+      setVideos(response.data.videos); // Update state with the received video data
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchVideos(); // Call the function when the component mounts
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const uploadFile = async (file, folder, filetype) => {
+    const storageRef = ref(storage, `${folder}/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          console.error('Error uploading file:', error);
+          setUploadError('Failed to upload files. Please try again.');
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log(`${filetype} URL:`, downloadURL);
+            resolve(downloadURL);
+          } catch (error) {
+            console.error('Error getting download URL:', error);
+            setUploadError('Error getting file URL.');
+            reject(error);
+          }
+        }
+      );
     });
+  };
 
-    const [uploading, setUploading] = useState(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUploading(true);
+    setUploadError('');
 
-    const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        if (files) {
-            setFormData({
-                ...formData,
-                [name]: files[0], // Store the file if available
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value,
-            });
-        }
-    };
+    try {
+      // Validate if files are uploaded
+      if (!formData.videoFile || !formData.thumbnail) {
+        setUploadError('Please upload both video and thumbnail.');
+        return;
+      }
 
-    const toggleModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
+      // Upload video and thumbnail
+      const videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
+      const thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
 
-    const uploadFile = (file, folder, filetype) => {
-        return new Promise((resolve, reject) => {
-            const storageRef = ref(storage, `${folder}/${file.name}`);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-    
-            uploadTask.on(
-                'state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log(`Upload is ${progress}% done`);
-                },
-                (error) => {
-                    reject(error);
-                },
-                () => {
-                    // Get the download URL when the upload is completed
-                    getDownloadURL(uploadTask.snapshot.ref)
-                        .then((downloadURL) => {
-                            console.log('DownloadURL - ', downloadURL);
-                            setinput((prev) => ({
-                                ...prev,
-                                [filetype]: downloadURL,
-                            }));
-                            resolve(downloadURL);  // Resolve with the download URL
-                        })
-                        .catch((error) => reject(error));  // Reject on error
-                }
-            );
-        });
-    };
-    
-    // Handle form submission and upload files
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setUploading(true);
-    
-        try {
-            // Upload video and thumbnail to Firebase Storage
-            const videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
-            const thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
-    
-            console.log('Video URL:', videoURL);
-            console.log('Thumbnail URL:', thumbnailURL);
-    
-            // Post the data to the backend
-            await axios.post(`http://localhost:5001/api/videos`, { ...input });
-    
-            // Reset form and close modal
-            setFormData({
-                videoName: '',
-                videoCreator: '',
-                videoFile: null,
-                thumbnail: null,
-            });
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error('Error uploading files:', error);
-        } finally {
-            setUploading(false); // End uploading state
-        }
-    };
-    
+      // Send POST request to the backend
+      const response = await axios.post(`http://localhost:5000/api/videos/`, {
+        videoUrl: videoURL,
+        imgUrl: thumbnailURL,
+        videoName: formData.videoName,
+        videoCreator: formData.videoCreator,
+      });
 
-    return (
-        <div className='h-screen p-4 bg-slate-950'>
-            <h1 className='pt-6 ml-16 font-serif text-2xl text-white'>Shuttlemate</h1>
-            <h1 className='text-6xl font-bold text-center text-white'>Videos</h1>
+      console.log('Video saved:', response.data);
+      setFormData({ videoName: '', videoCreator: '', videoFile: null, thumbnail: null });
+      fetchVideos(); // Refresh video list after upload
+      toggleModal(); // Close modal
+    } catch (error) {
+      console.error('Error uploading or saving video:', error);
+      setUploadError('An error occurred while saving the video. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
-            <div className="flex justify-end mb-6 mr-11">
+  // Define columns for the React Table
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: 'Name of Video',
+        accessor: 'videoName', // accessor is the "key" in the data
+      },
+      {
+        Header: 'Video By',
+        accessor: 'videoCreator',
+      },
+      {
+        Header: 'Edit',
+        Cell: ({ row }) => (
+          <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-blue-500 rounded hover:bg-blue-600 hover:scale-105">
+            Edit
+          </button>
+        ),
+      },
+      {
+        Header: 'Delete',
+        Cell: ({ row }) => (
+          <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105">
+            Delete
+          </button>
+        ),
+      },
+    ],
+    []
+  );
+
+  // Create an instance of the table with the useTable hook
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({ columns, data: videos });
+
+  return (
+    <div className='h-screen p-4 bg-slate-950'>
+      <h1 className='pt-6 ml-16 font-serif text-2xl text-white'>Shuttlemate</h1>
+      <h1 className='text-6xl font-bold text-center text-white'>Videos</h1>
+
+      <div className="flex justify-end mb-6 mr-16">
+        <button
+          onClick={toggleModal}
+          className='justify-end px-5 py-2 text-lg font-semibold transition duration-300 ease-in-out transform bg-yellow-500 text-slate-50 rounded-2xl hover:bg-yellow-600 hover:scale-105'
+        >
+          Add New
+        </button>
+      </div>
+
+      {/* Video list table using React Table */}
+      <div className="mx-16 overflow-x-auto">
+        <table {...getTableProps()} className="min-w-full text-center rounded-lg shadow-lg table-auto bg-slate-800">
+          <thead className="text-white bg-blue-900">
+            {headerGroups.map(headerGroup => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <th {...column.getHeaderProps()} className="px-6 py-4">{column.render('Header')}</th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()} className="text-slate-300">
+            {rows.map(row => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()} className="transition duration-300 ease-in-out border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
+                  {row.cells.map(cell => (
+                    <td {...cell.getCellProps()} className="px-6 py-4">{cell.render('Cell')}</td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal for adding new video */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-auto bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="mb-4 text-2xl font-bold text-center">Add New Video</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block mb-2 text-lg font-medium">Video Name</label>
+                <input
+                  type="text"
+                  name="videoName"
+                  value={formData.videoName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2 text-lg font-medium">Video Creator</label>
+                <input
+                  type="text"
+                  name="videoCreator"
+                  value={formData.videoCreator}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2 text-lg font-medium">Upload Video</label>
+                <input
+                  type="file"
+                  name="videoFile"
+                  accept="video/*"
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2 text-lg font-medium">Thumbnail</label>
+                <input
+                  type="file"
+                  name="thumbnail"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              {uploadError && (
+                <div className="mb-4 text-red-500">{uploadError}</div>
+              )}
+              <div className="flex justify-end">
                 <button
-                    onClick={toggleModal}
-                    className='justify-end px-5 py-2 text-3xl font-semibold transition duration-300 ease-in-out transform bg-yellow-500 text-slate-50 rounded-2xl hover:bg-yellow-600 hover:scale-105'
+                  type="button"
+                  onClick={toggleModal}
+                  className="px-4 py-2 mr-4 font-bold text-white bg-red-500 rounded hover:bg-red-600"
                 >
-                    Add New
+                  Cancel
                 </button>
-                </div>
-                <div className="mx-16 overflow-x-auto">
-                    <table className="min-w-full text-center rounded-lg shadow-lg table-auto bg-slate-800">
-                        <thead className="text-white bg-blue-900">
-                            <tr>
-                                <th className="px-6 py-4">Name of Video</th>
-                                <th className="px-6 py-4">Video By</th>
-                                <th className="px-6 py-4">Edit</th>
-                                <th className="px-6 py-4">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-slate-300">
-                            <tr className="transition duration-300 ease-in-out border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
-                                <td className="px-6 py-4">Smash Technique</td>
-                                <td className="px-6 py-4">Coach John</td>
-                                <td className="px-6 py-4">
-                                    <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-blue-500 rounded hover:bg-blue-600 hover:scale-105">
-                                        Edit
-                                    </button>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr className="transition duration-300 ease-in-out border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
-                                <td className="px-6 py-4">Net Play Drills</td>
-                                <td className="px-6 py-4">Coach Emma</td>
-                                <td className="px-6 py-4">
-                                    <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-white rounded hover:bg-white hover:scale-105">
-                                        <img src={images.Edit} height={20} width={20} />
-                                    </button>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <button className="px-4 py-2 font-bold text-white transition duration-300 ease-in-out transform bg-white rounded-full hover:scale-105">
-                                        <img src={images.Bin} height={20} width={20} />
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-auto bg-black bg-opacity-50">
-                        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
-                            <h2 className="mb-4 text-2xl font-bold text-center">Add New Video</h2>
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-4">
-                                    <label className="block mb-2 text-lg font-medium">Video Name</label>
-                                    <input
-                                        type="text"
-                                        name="videoName"
-                                        value={formData.videoName}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block mb-2 text-lg font-medium">Video Creator</label>
-                                    <input
-                                        type="text"
-                                        name="videoCreator"
-                                        value={formData.videoCreator}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block mb-2 text-lg font-medium">Upload Video</label>
-                                    <input
-                                        type="file"
-                                        name="videoFile"
-                                        accept="video/*"
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block mb-2 text-lg font-medium">Thumbnail</label>
-                                    <input
-                                        type="file"
-                                        name="thumbnail"
-                                        accept="image/*"
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex justify-end">
-                                    <button
-                                        type="button"
-                                        onClick={toggleModal}
-                                        className="px-4 py-2 mr-4 font-bold text-white bg-red-500 rounded hover:bg-red-600"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={uploading}
-                                        className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-600"
-                                    >
-                                        {uploading ? 'Uploading...' : 'Save'}
-                                    </button>
-                                    
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-            </div>
-            );
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="px-4 py-2 font-bold text-white bg-green-500 rounded hover:bg-green-600"
+                >
+                  {uploading ? 'Uploading...' : 'Submit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
-            export default VideoPage;
+export default VideoPage;
