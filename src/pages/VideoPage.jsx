@@ -161,9 +161,9 @@ const VideoPage = () => {
             <div className="flex justify-end mb-6 mr-20">
                 <button
                     onClick={toggleModal}
-                    className='justify-end px-5 py-2 text-lg font-semibold transition duration-300 ease-in-out transform bg-yellow-500 text-slate-50 rounded-2xl hover:bg-yellow-600 hover:scale-105'
+                    className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400"
                 >
-                    Add New
+                    Add New Video
                 </button>
             </div>
 

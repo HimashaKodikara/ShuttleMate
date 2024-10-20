@@ -7,7 +7,7 @@ const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggle
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
                 <h2 className="mb-4 text-2xl font-bold text-center">
-                    {step === 1 ? 'Add New Coacher - Step 1' : 'Add New Coacher - Step 2'}
+                    {step === 1 ? 'Add New Coacher ' : 'Add New Coacher '}
                 </h2>
                 <form onSubmit={handleSubmit}>
                     {step === 1 ? (
