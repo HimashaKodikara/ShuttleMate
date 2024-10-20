@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom'; // Import Navigate for redirection
 
 import { AuthProvider } from './context/AuthContext';
-import Login from './componenets/Login';
-import Register from './componenets/Register';
-import Home from './componenets/Home';
-import Splashscreen from './componenets/Splashscreen';
-import VideoPage from './componenets/VideoPage';
-import Coachers from './componenets/Coachers';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Home from './pages/Home';
+import Splashscreen from './pages/Splashscreen';
+import VideoPage from './pages/VideoPage';
+import Coachers from './pages/Coachers';
 
 function App() {
   return (
