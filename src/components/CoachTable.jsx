@@ -53,8 +53,10 @@ const CoacherTable = ({ coachers }) => {
                 <tbody {...getTableBodyProps()} className="text-slate-300">
                     {rows.map(row => {
                         prepareRow(row);
+                        // Separate the key prop from the rest of the props
+                        const { key, ...rowProps } = row.getRowProps();
                         return (
-                            <tr {...row.getRowProps()} className="border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
+                            <tr key={key} {...rowProps} className="border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
                                 {row.cells.map(cell => (
                                     <td {...cell.getCellProps()} className="px-1 py-4">{cell.render('Cell')}</td>
                                 ))}

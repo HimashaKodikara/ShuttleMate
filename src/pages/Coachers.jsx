@@ -4,6 +4,7 @@ import Modal from '../components/CoachModel';
 import CoacherTable from '../components/CoachTable';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig'; 
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const Coachers = () => {
     const [coachers, setCoachers] = useState([]);
@@ -112,6 +113,14 @@ const Coachers = () => {
                                 });
                                 setIsModalOpen(false);
                                 setUploading(false);
+                                
+                                // Show success message
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Coacher added successfully.',
+                                    icon: 'success',
+                                    confirmButtonText: 'Okay'
+                                });
                             })
                             .catch((error) => {
                                 console.error('Error adding coacher:', error);
