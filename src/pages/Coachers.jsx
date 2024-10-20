@@ -4,7 +4,8 @@ import Modal from '../components/CoachModel';
 import CoacherTable from '../components/CoachTable';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig'; 
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
+import Navbar from '../components/Navbar';
 
 const Coachers = () => {
     const [coachers, setCoachers] = useState([]);
@@ -134,8 +135,9 @@ const Coachers = () => {
 
     return (
         <div className="h-screen bg-slate-950">
-            <h1 className='pt-6 ml-16 font-serif text-2xl text-white'>Shuttlemate</h1>
-            <h1 className='text-4xl font-bold text-center text-white'>Coachers</h1>
+            <Navbar/>
+            
+            <h1 className='pt-5 text-4xl font-bold text-center text-white'>Coachers</h1>
             <div className="flex justify-end mx-20">
                 <button onClick={toggleModal} className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400">
                     Add New Coacher
