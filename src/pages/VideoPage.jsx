@@ -3,6 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig'; 
 import axios from 'axios';
 import { useTable } from 'react-table'; 
+import Navbar from '../components/Navbar';
 
 const VideoPage = () => {
     const [videos, setVideos] = useState([]);
@@ -154,9 +155,9 @@ const VideoPage = () => {
     } = useTable({ columns, data: videos });
 
     return (
-        <div className='h-screen p-4 bg-slate-950'>
-            <h1 className='pt-6 ml-16 font-serif text-2xl text-white'>Shuttlemate</h1>
-            <h1 className='text-4xl font-bold text-center text-white'>Videos</h1>
+        <div className='h-screen bg-slate-950'>
+            <Navbar/>
+            <h1 className='pt-3 text-4xl font-bold text-center text-white'>Videos</h1>
 
             <div className="flex justify-end mb-6 mr-20">
                 <button
