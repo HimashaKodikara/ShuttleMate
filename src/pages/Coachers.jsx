@@ -87,7 +87,7 @@ const Coachers = () => {
             setUploading(true);
             setUploadError('');
 
-            const storageRef = ref(storage, `images/coaches/${formData.CoachPhoto.name}`);
+            const storageRef = ref(storage, `coaches/${formData.CoachPhoto.name}`);
             const uploadTask = uploadBytesResumable(storageRef, formData.CoachPhoto);
 
             uploadTask.on(
