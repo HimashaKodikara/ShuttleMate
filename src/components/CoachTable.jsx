@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTable } from 'react-table';
 
-const CoachersTable = ({ coachers }) => {
+const CoacherTable = ({ coachers }) => {
     const columns = React.useMemo(
         () => [
             {
@@ -36,13 +36,7 @@ const CoachersTable = ({ coachers }) => {
         []
     );
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-    } = useTable({ columns, data: coachers });
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data: coachers });
 
     return (
         <div className="mx-20 overflow-x-auto">
@@ -73,4 +67,4 @@ const CoachersTable = ({ coachers }) => {
     );
 };
 
-export default CoachersTable;
+export default CoacherTable;
