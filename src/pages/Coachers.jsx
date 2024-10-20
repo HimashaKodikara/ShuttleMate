@@ -21,7 +21,7 @@ const Coachers = () => {
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
 
-    // Fetch coachers from the backend
+    
     const fetchCoachers = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/coachers');
@@ -114,7 +114,7 @@ const Coachers = () => {
                                 setIsModalOpen(false);
                                 setUploading(false);
                                 
-                                // Show success message
+                                
                                 Swal.fire({
                                     title: 'Success!',
                                     text: 'Coacher added successfully.',
