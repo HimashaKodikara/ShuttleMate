@@ -14,7 +14,11 @@ const Home = () => {
 
   return (
     <div className='h-screen bg-slate-950 '>
+      <div className='flex flex-row items-center justify-center space-x-7'>
+      <img src={images.logo} height={75} width={150}/>
       <h1 className='pt-10 font-serif font-black text-center text-white text-7xl'>Welcome to Shuttlemate</h1>
+      </div>
+      
       <p className='mt-12 text-3xl text-center text-white '>Select a option</p>
        <div className="grid grid-cols-1 gap-12 p-4 px-10 pt-14 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map(card => (
