@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Splashscreen from './pages/Splashscreen';
 import VideoPage from './pages/VideoPage';
 import Coachers from './pages/Coachers';
+import Court from './pages/court';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path='/Videopage' element={<VideoPage/>}/>
           <Route path ='/Coachers' element= {<Coachers/>}/>
+          <Route path ='/Court' element= {<Court/>}/>
+
         </Routes>
       </div>
     </AuthProvider>

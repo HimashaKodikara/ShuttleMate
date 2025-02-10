@@ -8,7 +8,7 @@ const Home = () => {
   const cards = [
     { id: 1, title: 'Upload Video', image:images.player, link: '/Videopage' },
     { id: 2, title: 'Coachers', image: images.coach, link: '/Coachers' },
-    { id: 3, title: 'Courts', image: images.court, link: '/card3' },
+    { id: 3, title: 'Courts', image: images.court, link: '/court' },
     { id: 4, title: 'Shops', image: images.Shops, link: '/card4' },
   ];
 
