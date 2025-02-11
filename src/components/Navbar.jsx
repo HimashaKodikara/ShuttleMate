@@ -13,7 +13,7 @@ const Navbar = () => {
                     <a href="Home" className="text-gray-300 hover:text-white">Home</a>
                     <a href="VideoPage" className="text-gray-300 hover:text-white">Videos</a>
                     <a href="Coachers" className="text-gray-300 hover:text-white">Coachers</a>
-                    <a href="Courts" className="text-gray-300 hover:text-white">Courts</a>
+                    <a href="Court" className="text-gray-300 hover:text-white">Courts</a>
                     <a href="Shops" className="text-gray-300 hover:text-white">Shops</a>
                 </div>
                 

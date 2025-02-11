@@ -1,42 +1,41 @@
 import React from 'react';
 import { useTable } from 'react-table';
 
-const CourtTable = ({ courts }) => {
-    const columns = React.useMemo(
-        () => [
-            {
-                Header: 'Name Of the Court',
-                accessor: 'CourtName',
-            },
-            {
-                Header: 'Place',
-                accessor: 'Place',
-            },
-            {
-                Header: 'Tel',
-                accessor: 'Tel',
-            },
-            {
-                Header: 'Edit',
-                Cell: ({ row }) => (
-                    <button className="px-4 py-1 font-bold text-white bg-blue-500 rounded hover:bg-blue-600">
-                        Edit
-                    </button>
-                ),
-            },
-            {
-                Header: 'Delete',
-                Cell: ({ row }) => (
-                    <button className="px-4 py-1 font-bold text-white bg-red-500 rounded hover:bg-red-600">
-                        Delete
-                    </button>
-                ),
-            },
-        ],
-        []
-    );
+const CourtTable = ({ courts = [] }) => {
+    const columns = React.useMemo(() => [
+        {
+            Header: 'Name Of the Court',
+            accessor: 'CourtName',
+        },
+        {
+            Header: 'Place',
+            accessor: 'Place',
+        },
+        {
+            Header: 'Tel',
+            accessor: 'Tel',
+        },
+        {
+            Header: 'Edit',
+            accessor: 'edit',
+            Cell: ({ row }) => (
+                <button className="px-4 py-1 font-bold text-white bg-blue-500 rounded hover:bg-blue-600">
+                    Edit
+                </button>
+            ),
+        },
+        {
+            Header: 'Delete',
+            accessor: 'delete',
+            Cell: ({ row }) => (
+                <button className="px-4 py-1 font-bold text-white bg-red-500 rounded hover:bg-red-600">
+                    Delete
+                </button>
+            ),
+        },
+    ], []);
 
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data: court });
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data: courts });
 
     return (
         <div className="mx-20 overflow-x-auto">
@@ -53,12 +52,10 @@ const CourtTable = ({ courts }) => {
                 <tbody {...getTableBodyProps()} className="text-slate-300">
                     {rows.map(row => {
                         prepareRow(row);
-                        // Separate the key prop from the rest of the props
-                        const { key, ...rowProps } = row.getRowProps();
                         return (
-                            <tr key={key} {...rowProps} className="border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
+                            <tr {...row.getRowProps()} className="border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
                                 {row.cells.map(cell => (
-                                    <td {...cell.getCellProps()} className="px-1 py-4">{cell.render('Cell')}</td>
+                                    <td {...cell.getCellProps()} className="px-1 py-4 border border-white">{cell.render('Cell')}</td>
                                 ))}
                             </tr>
                         );
