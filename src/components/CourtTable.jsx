@@ -9,7 +9,7 @@ const CourtTable = ({ courts = [] }) => {
         },
         {
             Header: 'Place',
-            accessor: 'Place',
+            accessor: 'place',
         },
         {
             Header: 'Tel',
@@ -53,9 +53,9 @@ const CourtTable = ({ courts = [] }) => {
                     {rows.map(row => {
                         prepareRow(row);
                         return (
-                            <tr {...row.getRowProps()} className="border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
+                            <tr {...row.getRowProps()} className=" bg-slate-900 hover:bg-slate-800">
                                 {row.cells.map(cell => (
-                                    <td {...cell.getCellProps()} className="px-1 py-4 border border-white">{cell.render('Cell')}</td>
+                                    <td {...cell.getCellProps()} className="px-1 py-4 ">{cell.render('Cell')}</td>
                                 ))}
                             </tr>
                         );

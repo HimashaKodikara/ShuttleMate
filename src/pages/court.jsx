@@ -3,8 +3,8 @@ import axios from 'axios';
 import Modal from '../components/CourtModel';
 import CourtTable from '../components/CourtTable';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase/firebaseconfig'; 
-import Swal from 'sweetalert2'; 
+import { storage } from '../firebase/firebaseconfig';
+import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
 
 const Courts = () => {
@@ -14,13 +14,14 @@ const Courts = () => {
         CourtName: '',
         Tel: '',
         place: '',
-        Directions: [{ latitute: '', lognitude: '' }],
+        Directions: [{ latitude: '', longitude: '' }],
         CourtPhoto: null,
     });
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
 
+    
     const fetchCourts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/courts');
@@ -34,6 +35,7 @@ const Courts = () => {
         fetchCourts();
     }, []);
 
+    
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
@@ -41,7 +43,6 @@ const Courts = () => {
             [name]: files ? files[0] : value,
         }));
     };
-
     const handleDirectionsChange = (index, e) => {
         const { name, value } = e.target;
         const updatedDirections = [...formData.Directions];
@@ -51,14 +52,14 @@ const Courts = () => {
             Directions: updatedDirections,
         }));
     };
-
     const addDirection = () => {
         setFormData((prev) => ({
             ...prev,
-            Directions: [...prev.Directions, { latitute: '', lognitude: '' }],
+            Directions: [...prev.Directions, { latitude: '', longitude: '' }],
         }));
     };
 
+   
     const removeDirection = (index) => {
         const updatedDirections = [...formData.Directions];
         updatedDirections.splice(index, 1);
@@ -73,10 +74,12 @@ const Courts = () => {
         setStep(1);
     };
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (step === 1) {
-            setStep(2);
+            setStep(2); 
         } else {
             if (!formData.CourtPhoto) {
                 setUploadError('Please upload a court photo.');
@@ -86,19 +89,28 @@ const Courts = () => {
             setUploading(true);
             setUploadError('');
 
+            
             const storageRef = ref(storage, `courts/${formData.CourtPhoto.name}`);
             const uploadTask = uploadBytesResumable(storageRef, formData.CourtPhoto);
 
             uploadTask.on(
                 'state_changed',
-                (snapshot) => {},
+                (snapshot) => {
+                    
+                },
                 (error) => {
                     setUploadError('Failed to upload the court photo.');
                     setUploading(false);
                 },
                 () => {
+                   
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        const newCourt = { ...formData, CourtPhoto: downloadURL };
+                        const newCourt = {
+                            ...formData,
+                            CourtPhoto: downloadURL,
+                        };
+
+                       
                         axios.post('http://localhost:5000/api/courts', newCourt)
                             .then(() => {
                                 fetchCourts();
@@ -106,18 +118,20 @@ const Courts = () => {
                                     CourtName: '',
                                     Tel: '',
                                     place: '',
-                                    Directions: [{ latitute: '', lognitude: '' }],
+                                    Directions: [{ latitude: '', longitude: '' }],
                                     CourtPhoto: null,
                                 });
                                 setIsModalOpen(false);
                                 setUploading(false);
 
+
                                 Swal.fire({
                                     title: 'Success!',
                                     text: 'Court added successfully.',
                                     icon: 'success',
-                                    confirmButtonText: 'Okay'
+                                    confirmButtonText: 'Okay',
                                 });
+                                console.log(formData);
                             })
                             .catch((error) => {
                                 console.error('Error adding court:', error);
@@ -131,15 +145,18 @@ const Courts = () => {
 
     return (
         <div className="h-screen bg-slate-950">
-            <Navbar/>
-            <h1 className='pt-5 text-4xl font-bold text-center text-white'>Courts</h1>
+            <Navbar />
+            <h1 className="pt-5 text-4xl font-bold text-center text-white">Courts</h1>
             <div className="flex justify-end mx-20">
-                <button onClick={toggleModal} className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400">
+                <button
+                    onClick={toggleModal}
+                    className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400"
+                >
                     Add New Court
                 </button>
             </div>
             <CourtTable courts={courts} />
-            <Modal 
+            <Modal
                 isOpen={isModalOpen}
                 step={step}
                 formData={formData}
