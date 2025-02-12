@@ -3,8 +3,8 @@ import axios from 'axios';
 import Modal from '../components/CoachModel';
 import CoacherTable from '../components/CoachTable';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase/firebaseconfig'; 
-import Swal from 'sweetalert2'; 
+import { storage } from '../firebase/firebaseconfig';
+import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
 
 const Coachers = () => {
@@ -22,7 +22,7 @@ const Coachers = () => {
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
 
-    
+
     const fetchCoachers = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/coachers');
@@ -93,7 +93,7 @@ const Coachers = () => {
 
             uploadTask.on(
                 'state_changed',
-                (snapshot) => {},
+                (snapshot) => { },
                 (error) => {
                     setUploadError('Failed to upload the coach photo.');
                     setUploading(false);
@@ -114,8 +114,8 @@ const Coachers = () => {
                                 });
                                 setIsModalOpen(false);
                                 setUploading(false);
-                                
-                                
+
+
                                 Swal.fire({
                                     title: 'Success!',
                                     text: 'Coacher added successfully.',
@@ -133,18 +133,50 @@ const Coachers = () => {
         }
     };
 
+
+    const handleDeleteCoacher = async (id) => {
+        try {
+            const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            });
+
+            if (result.isConfirmed) {
+                await axios.delete(`http://localhost:5000/api/coachers/coach/${id}`);
+                setCoachers(coachers.filter(coach => coach._id !== id));
+
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Coacher has been deleted.",
+                    icon: "success"
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting coacher:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete the coacher.",
+                icon: "error"
+            });
+        }
+    };
     return (
         <div className="h-screen bg-slate-950">
-            <Navbar/>
-            
+            <Navbar />
+
             <h1 className='pt-5 text-4xl font-bold text-center text-white'>Coachers</h1>
             <div className="flex justify-end mx-20">
                 <button onClick={toggleModal} className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400">
                     Add New Coacher
                 </button>
             </div>
-            <CoacherTable coachers={coachers} />
-            <Modal 
+            <CoacherTable coachers={coachers} onDelete={handleDeleteCoacher} />
+            <Modal
                 isOpen={isModalOpen}
                 step={step}
                 formData={formData}
