@@ -144,7 +144,7 @@ const Courts = () => {
     };
 
     return (
-        <div className="h-screen bg-slate-950">
+        <div className="h-full bg-slate-950">
             <Navbar />
             <h1 className="pt-5 text-4xl font-bold text-center text-white">Courts</h1>
             <div className="flex justify-end mx-20">
