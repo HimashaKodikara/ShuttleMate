@@ -21,13 +21,18 @@ const Courts = () => {
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
 
-    
+    // Fetch all courts from API
     const fetchCourts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/courts');
             setCourts(response.data.courts);
         } catch (error) {
             console.error("Error fetching courts:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to fetch courts.",
+                icon: "error"
+            });
         }
     };
 
@@ -35,7 +40,7 @@ const Courts = () => {
         fetchCourts();
     }, []);
 
-    
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
@@ -43,6 +48,8 @@ const Courts = () => {
             [name]: files ? files[0] : value,
         }));
     };
+
+    // Handle changes for court directions
     const handleDirectionsChange = (index, e) => {
         const { name, value } = e.target;
         const updatedDirections = [...formData.Directions];
@@ -52,6 +59,8 @@ const Courts = () => {
             Directions: updatedDirections,
         }));
     };
+
+    // Add new direction field
     const addDirection = () => {
         setFormData((prev) => ({
             ...prev,
@@ -59,7 +68,7 @@ const Courts = () => {
         }));
     };
 
-   
+    // Remove direction field
     const removeDirection = (index) => {
         const updatedDirections = [...formData.Directions];
         updatedDirections.splice(index, 1);
@@ -69,17 +78,18 @@ const Courts = () => {
         }));
     };
 
+    // Toggle Modal
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setStep(1);
     };
 
-
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (step === 1) {
-            setStep(2); 
+            setStep(2);
         } else {
             if (!formData.CourtPhoto) {
                 setUploadError('Please upload a court photo.');
@@ -89,62 +99,103 @@ const Courts = () => {
             setUploading(true);
             setUploadError('');
 
-            
             const storageRef = ref(storage, `courts/${formData.CourtPhoto.name}`);
             const uploadTask = uploadBytesResumable(storageRef, formData.CourtPhoto);
 
             uploadTask.on(
                 'state_changed',
-                (snapshot) => {
-                    
-                },
+                (snapshot) => {},
                 (error) => {
                     setUploadError('Failed to upload the court photo.');
                     setUploading(false);
                 },
-                () => {
-                   
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    
+                    try {
                         const newCourt = {
                             ...formData,
-                            CourtPhoto: downloadURL,
+                            CourtPhoto: downloadURL,  // Use URL instead of file object
                         };
 
-                       
-                        axios.post('http://localhost:5000/api/courts', newCourt)
-                            .then(() => {
-                                fetchCourts();
-                                setFormData({
-                                    CourtName: '',
-                                    Tel: '',
-                                    place: '',
-                                    Directions: [{ latitude: '', longitude: '' }],
-                                    CourtPhoto: null,
-                                });
-                                setIsModalOpen(false);
-                                setUploading(false);
+                        await axios.post('http://localhost:5000/api/courts', newCourt);
+                        fetchCourts();
+                        setFormData({
+                            CourtName: '',
+                            Tel: '',
+                            place: '',
+                            Directions: [{ latitude: '', longitude: '' }],
+                            CourtPhoto: null,
+                        });
 
+                        setIsModalOpen(false);
+                        setUploading(false);
 
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'Court added successfully.',
-                                    icon: 'success',
-                                    confirmButtonText: 'Okay',
-                                });
-                                console.log(formData);
-                            })
-                            .catch((error) => {
-                                console.error('Error adding court:', error);
-                                setUploading(false);
-                            });
-                    });
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Court added successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                        });
+                    } catch (error) {
+                        console.error('Error adding court:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to add court.',
+                            icon: 'error'
+                        });
+                        setUploading(false);
+                    }
                 }
             );
         }
     };
 
+    // Delete court by ID
+    const handleDeleteCourt = async (id) => {
+        // Check if court exists
+        if (!courts.find(court => court._id === id)) {
+            Swal.fire({
+                title: "Error!",
+                text: "Court not found.",
+                icon: "error"
+            });
+            return;
+        }
+
+        try {
+            const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            });
+
+            if (result.isConfirmed) {
+                await axios.delete(`http://localhost:5000/api/courts/${id}`);
+                setCourts(courts.filter(court => court._id !== id));
+
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Court has been deleted.",
+                    icon: "success"
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting court:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete the court.",
+                icon: "error"
+            });
+        }
+    };
+
     return (
-        <div className="h-full bg-slate-950">
+        <div className="h-full h-screen bg-slate-950">
             <Navbar />
             <h1 className="pt-5 text-4xl font-bold text-center text-white">Courts</h1>
             <div className="flex justify-end mx-20">
@@ -155,7 +206,7 @@ const Courts = () => {
                     Add New Court
                 </button>
             </div>
-            <CourtTable courts={courts} />
+            <CourtTable courts={courts} onDelete={handleDeleteCourt} />
             <Modal
                 isOpen={isModalOpen}
                 step={step}

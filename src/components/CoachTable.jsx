@@ -41,7 +41,7 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
                 ),
             },
         ],
-        [onDelete] // Add onDelete as a dependency
+        [onDelete] 
     );
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data: coachers });

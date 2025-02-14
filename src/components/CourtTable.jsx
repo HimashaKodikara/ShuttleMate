@@ -1,8 +1,10 @@
 import React from 'react';
 import { useTable } from 'react-table';
+import propTypes from 'prop-types'
 
-const CourtTable = ({ courts = [] }) => {
+const CourtTable = ({ courts = [],onDelete }) => {
     const columns = React.useMemo(() => [
+        
         {
             Header: 'Name Of the Court',
             accessor: 'CourtName',
@@ -24,16 +26,17 @@ const CourtTable = ({ courts = [] }) => {
                 </button>
             ),
         },
-        {
-            Header: 'Delete',
-            accessor: 'delete',
+        { Header: 'Delete',
             Cell: ({ row }) => (
-                <button className="px-4 py-1 font-bold text-white bg-red-500 rounded hover:bg-red-600">
+                <button
+                    className="px-4 py-1 font-bold text-white bg-red-500 rounded hover:bg-red-600"
+                    onClick={() => row.original && row.original._id && onDelete(row.original._id)}
+                >
                     Delete
                 </button>
             ),
         },
-    ], []);
+    ], [onDelete]);
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data: courts });
 
@@ -65,5 +68,6 @@ const CourtTable = ({ courts = [] }) => {
         </div>
     );
 };
+
 
 export default CourtTable;
