@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase/firebaseconfig'; 
+import { storage } from '../firebase/firebaseconfig';
 import axios from 'axios';
-import { useTable } from 'react-table'; 
+import { useTable } from 'react-table';
 import Navbar from '../components/Navbar';
+import Swal from 'sweetalert2';
 
 const VideoPage = () => {
     const [videos, setVideos] = useState([]);
@@ -20,8 +21,8 @@ const VideoPage = () => {
     // Fetch videos from the backend
     const fetchVideos = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/videos'); 
-            setVideos(response.data.videos); 
+            const response = await axios.get('http://localhost:5000/api/videos');
+            setVideos(response.data.videos);
         } catch (error) {
             console.error("Error fetching videos:", error);
         }
@@ -110,6 +111,48 @@ const VideoPage = () => {
         }
     };
 
+    
+    const handleDeleteVideo = async (id) => {
+        console.log("Deleting video with ID:", id); // Debugging line
+    
+        if (!videos.find(video => video._id === id)) {
+            Swal.fire({
+                title: "Error!",
+                text: "Video not found.",
+                icon: "error"
+            });
+            return;
+        }
+    
+        try {
+            const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            });
+    
+            if (result.isConfirmed) {
+                await axios.delete(`http://localhost:5000/api/videos/${id}`);
+                setVideos((prevVideos) => prevVideos.filter(video => video._id !== id)); // Update state
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Video has been deleted.",
+                    icon: "success"
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting video:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete the video.",
+                icon: "error"
+            });
+        }
+    };
 
     const columns = React.useMemo(
         () => [
@@ -122,8 +165,8 @@ const VideoPage = () => {
                 accessor: 'videoCreator',
             },
             {
-                 Header :'Created',
-                 accessor:'createdAt'
+                Header: 'Created',
+                accessor: 'createdAt'
             },
             {
                 Header: 'Edit',
@@ -136,7 +179,10 @@ const VideoPage = () => {
             {
                 Header: 'Delete',
                 Cell: ({ row }) => (
-                    <button className="px-4 py-1 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105">
+                    <button
+                        onClick={() => handleDeleteVideo(row.original._id)}
+                        className="px-4 py-1 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105"
+                    >
                         Delete
                     </button>
                 ),
@@ -145,7 +191,6 @@ const VideoPage = () => {
         []
     );
 
-    
     const {
         getTableProps,
         getTableBodyProps,
@@ -156,7 +201,7 @@ const VideoPage = () => {
 
     return (
         <div className='h-screen bg-slate-950'>
-            <Navbar/>
+            <Navbar />
             <h1 className='pt-3 text-4xl font-bold text-center text-white'>Videos</h1>
 
             <div className="flex justify-end mb-6 mr-20">

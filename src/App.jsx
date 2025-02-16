@@ -8,6 +8,8 @@ import Splashscreen from './pages/Splashscreen';
 import VideoPage from './pages/VideoPage';
 import Coachers from './pages/Coachers';
 import Court from './pages/court';
+import Shop from './pages/shop';
+import Timeline from './pages/timeline';
 
 function App() {
   return (
@@ -21,7 +23,11 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path='/Videopage' element={<VideoPage/>}/>
           <Route path ='/Coachers' element= {<Coachers/>}/>
+          <Route path='/shop' element={<Shop/>}/>
           <Route path ='/Court' element= {<Court/>}/>
+          <Route path ='/timeline' element= {<Timeline/>}/>
+
+          
 
         </Routes>
       </div>
