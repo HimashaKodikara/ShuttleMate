@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 const ShopTable = ({ shops = [], onDelete }) => {
     const columns = React.useMemo(
         () => [
-           
             {
                 Header: 'Name',
                 accessor: 'ShopName',
@@ -19,13 +18,20 @@ const ShopTable = ({ shops = [], onDelete }) => {
                 accessor: 'Tel',
             },
             {
-                Header: 'No of Items',
-                accessor: 'items',
+                
+                    Header: 'No of Categories',
+                    accessor: 'categories',
+                    Cell: ({ row }) => {
+                        const itemsCount = row.original?.categories?.length || 0;
+                        return itemsCount;
+                    },
+                
+                
             },
             {
                 Header: 'Edit',
                 Cell: ({ row }) => (
-                    <button className="px-4 py-1 font-bold text-white bg-blue-500 rounded hover:bg-blue-600">
+                    <button  className="px-4 py-1 font-bold text-white bg-blue-500 rounded hover:bg-blue-600">
                         Edit
                     </button>
                 ),
@@ -84,9 +90,10 @@ ShopTable.propTypes = {
     shops: PropTypes.arrayOf(
         PropTypes.shape({
             _id: PropTypes.string.isRequired,
-            CoachName: PropTypes.string.isRequired,
-            TrainingType: PropTypes.string.isRequired,
+            ShopName: PropTypes.string.isRequired,
             Tel: PropTypes.string.isRequired,
+            place: PropTypes.string.isRequired,
+            items: PropTypes.array.isRequired,
         })
     ).isRequired,
     onDelete: PropTypes.func.isRequired,

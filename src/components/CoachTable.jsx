@@ -6,10 +6,6 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
     const columns = React.useMemo(
         () => [
             {
-                Header: 'ID',
-                accessor: '_id',
-            },
-            {
                 Header: 'Name',
                 accessor: 'CoachName',
             },

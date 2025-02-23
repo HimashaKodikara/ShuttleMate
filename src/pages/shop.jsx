@@ -15,7 +15,7 @@ const Shop = () => {
         place: '',
         Tel: '',
         website: '',
-        items: [{ name: '', quantity: '' }], // Properly structured items array
+        categories: [{ categoryName: '', items: [{ name: '', quantity: '' }] }],
         ShopPhoto: null,
     });
     const [uploading, setUploading] = useState(false);
@@ -43,29 +43,58 @@ const Shop = () => {
         }));
     };
 
-    const handleItemChange = (index, e) => {
+    const handleCategoryChange = (index, e) => {
+        const { value } = e.target;
+        setFormData((prev) => {
+            const updatedCategories = prev.categories.map((category, i) =>
+                i === index ? { ...category, categoryName: value } : category
+            );
+            return { ...prev, categories: updatedCategories };
+        });
+    };
+    
+
+    const handleItemChange = (catIndex, itemIndex, e) => {
         const { name, value } = e.target;
-        const updatedItems = [...formData.items];
-        updatedItems[index][name] = value;
+        const updatedCategories = [...formData.categories];
+        updatedCategories[catIndex].items[itemIndex][name] = value;
         setFormData((prev) => ({
             ...prev,
-            items: updatedItems,
+            categories: updatedCategories,
         }));
     };
 
-    const addItem = () => {
+    const addCategory = () => {
         setFormData((prev) => ({
             ...prev,
-            items: [...prev.items, { name: '', quantity: '' }],
+            categories: [...prev.categories, { categoryName: '', items: [{itemphoto:'', name: '', price: '',color:'' }] }],
         }));
     };
 
-    const removeItem = (index) => {
-        const updatedItems = [...formData.items];
-        updatedItems.splice(index, 1);
+    const removeCategory = (index) => {
+        const updatedCategories = [...formData.categories];
+        updatedCategories.splice(index, 1);
         setFormData((prev) => ({
             ...prev,
-            items: updatedItems,
+            categories: updatedCategories,
+        }));
+    };
+
+    const addItem = (catIndex) => {
+        const updatedCategories = [...formData.categories];
+        updatedCategories[catIndex].items.push({ name: '', quantity: '' });
+        setFormData((prev) => ({
+            ...prev,
+            categories: updatedCategories,
+        }));
+    };
+
+    const removeItem = (catIndex, itemIndex) => {
+        const updatedCategories = [...formData.categories];
+        updatedCategories[catIndex].items.splice(itemIndex, 1);
+        setFormData((prev) => ({
+            ...prev,
+            categories: updatedCategories,
         }));
     };
 
@@ -108,7 +137,7 @@ const Shop = () => {
                                     place: '',
                                     Tel: '',
                                     website: '',
-                                    items: [{ name: '', quantity: '' }],
+                                    categories: [{ categoryName: '', items: [{ itemphoto:'', name: '', price: '',color:''  }] }],
                                     ShopPhoto: null,
                                 });
                                 setIsModalOpen(false);
@@ -130,8 +159,17 @@ const Shop = () => {
             );
         }
     };
-
     const handleDeleteShop = async (id) => {
+        // Check if court exists
+        if (!shops.find(shop => shop._id === id)) {
+            Swal.fire({
+                title: "Error!",
+                text: "Court not found.",
+                icon: "error"
+            });
+            return;
+        }
+
         try {
             const result = await Swal.fire({
                 title: "Are you sure?",
@@ -144,7 +182,7 @@ const Shop = () => {
             });
 
             if (result.isConfirmed) {
-                await axios.delete(`http://localhost:5000/api/shops/${id}`);
+                await axios.delete(`http://localhost:5000/api/shops/shop/${id}`);
                 setShops(shops.filter(shop => shop._id !== id));
 
                 Swal.fire({
@@ -157,23 +195,21 @@ const Shop = () => {
             console.error("Error deleting shop:", error);
             Swal.fire({
                 title: "Error!",
-                text: "Failed to delete the shop.",
+                text: "Failed to delete the court.",
                 icon: "error"
             });
         }
     };
-
     return (
         <div className="h-screen bg-slate-950">
             <Navbar />
-
             <h1 className='pt-5 text-4xl font-bold text-center text-white'>Shops</h1>
             <div className="flex justify-end mx-20">
                 <button onClick={toggleModal} className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400">
                     Add New Shop
                 </button>
             </div>
-            <ShopTable shops={shops} onDelete={handleDeleteShop} />
+            <ShopTable shops={shops}  onDelete={handleDeleteShop}/>
             <Modal
                 isOpen={isModalOpen}
                 step={step}
@@ -181,6 +217,9 @@ const Shop = () => {
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 toggleModal={toggleModal}
+                addCategory={addCategory}
+                removeCategory={removeCategory}
+                handleCategoryChange={handleCategoryChange}
                 addItem={addItem}
                 removeItem={removeItem}
                 handleItemChange={handleItemChange}
