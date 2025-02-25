@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTable } from 'react-table';
 import PropTypes from 'prop-types';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const CoacherTable = ({ coachers = [], onDelete }) => {
     const columns = React.useMemo(
@@ -21,7 +22,7 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
                 Header: 'Edit',
                 Cell: ({ row }) => (
                     <button className="px-4 py-1 font-bold text-white bg-blue-500 rounded hover:bg-blue-600">
-                        Edit
+                        <Pencil size={18}/>
                     </button>
                 ),
             },
@@ -29,10 +30,10 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
                 Header: 'Delete',
                 Cell: ({ row }) => (
                     <button
-                        className="px-4 py-1 font-bold text-white bg-red-500 rounded hover:bg-red-600"
+                        className="px-4 py-1 font-bold text-white rounded hover:bg-red-600"
                         onClick={() => row.original && row.original._id && onDelete(row.original._id)}
                     >
-                        Delete
+                        <Trash2 size={18}/>
                     </button>
                 ),
             },

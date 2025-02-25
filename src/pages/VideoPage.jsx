@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useTable } from 'react-table';
 import Navbar from '../components/Navbar';
 import Swal from 'sweetalert2';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const VideoPage = () => {
     const [videos, setVideos] = useState([]);
@@ -171,8 +172,8 @@ const VideoPage = () => {
             {
                 Header: 'Edit',
                 Cell: ({ row }) => (
-                    <button className="px-4 py-1 font-bold text-white transition duration-300 ease-in-out transform bg-blue-500 rounded hover:bg-blue-600 hover:scale-105">
-                        Edit
+                    <button className="px-4 py-1 font-bold text-blue-500 duration-300 ease-in-out transform rounded tran-blsition hover:bg-blue-600 hover:scale-105">
+                        <Pencil size={18}/>
                     </button>
                 ),
             },
@@ -181,9 +182,9 @@ const VideoPage = () => {
                 Cell: ({ row }) => (
                     <button
                         onClick={() => handleDeleteVideo(row.original._id)}
-                        className="px-4 py-1 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105"
+                        className="px-4 py-1 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-600 hover:scale-105"
                     >
-                        Delete
+                        <Trash2 size={18}/>
                     </button>
                 ),
             },

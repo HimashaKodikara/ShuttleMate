@@ -6,16 +6,20 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
+import ItemModal from '../components/ItemModel'; // Import the ItemModal we created earlier
 
 const Shop = () => {
     const [shops, setShops] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isItemModalOpen, setIsItemModalOpen] = useState(false); // New state for item modal
+    const [selectedShop, setSelectedShop] = useState(null); // Track selected shop
+    const [selectedCategory, setSelectedCategory] = useState(null); // Track selected category
     const [formData, setFormData] = useState({
         ShopName: '',
         place: '',
         Tel: '',
         website: '',
-        categories: [{ categoryName: '', items: [{ name: '', quantity: '' }] }],
+        categories: [{ categoryName: '', items: [{ itemphoto:'', name: '', price: '', color:'' }] }],
         ShopPhoto: null,
     });
     const [uploading, setUploading] = useState(false);
@@ -53,7 +57,6 @@ const Shop = () => {
         });
     };
     
-
     const handleItemChange = (catIndex, itemIndex, e) => {
         const { name, value } = e.target;
         const updatedCategories = [...formData.categories];
@@ -67,7 +70,7 @@ const Shop = () => {
     const addCategory = () => {
         setFormData((prev) => ({
             ...prev,
-            categories: [...prev.categories, { categoryName: '', items: [{itemphoto:'', name: '', price: '',color:'' }] }],
+            categories: [...prev.categories, { categoryName: '', items: [{itemphoto:'', name: '', price: '', color:'' }] }],
         }));
     };
 
@@ -82,7 +85,7 @@ const Shop = () => {
 
     const addItem = (catIndex) => {
         const updatedCategories = [...formData.categories];
-        updatedCategories[catIndex].items.push({ name: '', quantity: '' });
+        updatedCategories[catIndex].items.push({ itemphoto:'', name: '', price: '', color:'' });
         setFormData((prev) => ({
             ...prev,
             categories: updatedCategories,
@@ -101,6 +104,37 @@ const Shop = () => {
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setStep(1);
+    };
+
+    // New function to open the item modal with a specific shop and category
+    const openItemModal = (shop, category) => {
+        console.log("Selected Category ID:", category._id);
+
+        setSelectedShop(shop);
+        setSelectedCategory(category);
+        setIsItemModalOpen(true);
+    };
+
+    // Function to handle adding a new item via API
+    const handleAddItem = async (newItem) => {
+        try {
+            // Refresh the shop data to show the new item
+            await fetchShops();
+            
+            Swal.fire({
+                title: 'Success!',
+                text: 'Item added successfully.',
+                icon: 'success',
+                confirmButtonText: 'Okay'
+            });
+        } catch (error) {
+            console.error('Error after adding item:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to refresh shop data.',
+                icon: 'error'
+            });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -137,7 +171,7 @@ const Shop = () => {
                                     place: '',
                                     Tel: '',
                                     website: '',
-                                    categories: [{ categoryName: '', items: [{ itemphoto:'', name: '', price: '',color:''  }] }],
+                                    categories: [{ categoryName: '', items: [{ itemphoto:'', name: '', price: '', color:'' }] }],
                                     ShopPhoto: null,
                                 });
                                 setIsModalOpen(false);
@@ -159,12 +193,13 @@ const Shop = () => {
             );
         }
     };
+
     const handleDeleteShop = async (id) => {
-        // Check if court exists
+        // Check if shop exists
         if (!shops.find(shop => shop._id === id)) {
             Swal.fire({
                 title: "Error!",
-                text: "Court not found.",
+                text: "Shop not found.",
                 icon: "error"
             });
             return;
@@ -195,11 +230,12 @@ const Shop = () => {
             console.error("Error deleting shop:", error);
             Swal.fire({
                 title: "Error!",
-                text: "Failed to delete the court.",
+                text: "Failed to delete the shop.", // Fixed the text from "court" to "shop"
                 icon: "error"
             });
         }
     };
+
     return (
         <div className="h-screen bg-slate-950">
             <Navbar />
@@ -209,7 +245,11 @@ const Shop = () => {
                     Add New Shop
                 </button>
             </div>
-            <ShopTable shops={shops}  onDelete={handleDeleteShop}/>
+            <ShopTable 
+                shops={shops} 
+                onDelete={handleDeleteShop} 
+                onAddItem={openItemModal} // Pass the function to open item modal
+            />
             <Modal
                 isOpen={isModalOpen}
                 step={step}
@@ -225,6 +265,15 @@ const Shop = () => {
                 handleItemChange={handleItemChange}
                 uploadError={uploadError}
                 setStep={setStep}
+            />
+            
+            {/* Add the ItemModal component */}
+            <ItemModal 
+                isOpen={isItemModalOpen}
+                onClose={() => setIsItemModalOpen(false)}
+                onAddItem={handleAddItem}
+                selectedShop={selectedShop}
+                selectedCategory={selectedCategory}
             />
         </div>
     );

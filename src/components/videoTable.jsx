@@ -3,6 +3,7 @@ import React from 'react';
 import { useTable } from 'react-table';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const VideoTable = ({ videos, fetchVideos }) => {
     const columns = React.useMemo(
@@ -23,7 +24,7 @@ const VideoTable = ({ videos, fetchVideos }) => {
                 Header: 'Edit',
                 Cell: ({ row }) => (
                     <button className="px-4 py-1 font-bold text-white transition duration-300 ease-in-out transform bg-blue-500 rounded hover:bg-blue-600 hover:scale-105">
-                        Edit
+                          <Pencil size={18} />
                     </button>
                 ),
             },
@@ -34,7 +35,7 @@ const VideoTable = ({ videos, fetchVideos }) => {
                         className="px-4 py-1 font-bold text-white transition duration-300 ease-in-out transform bg-red-500 rounded hover:bg-red-600 hover:scale-105"
                         onClick={() => handleDeleteVideo(row.original._id, fetchVideos)}
                     >
-                        Delete
+                    <Trash2 size={18} />
                     </button>
                 ),
             },
