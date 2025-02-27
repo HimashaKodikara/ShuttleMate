@@ -41,6 +41,7 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                 name: itemDetails.name,
                 price: Number(itemDetails.price),
                 color: itemDetails.color,
+                categoryId:selectedCategory._id
             };
 
             // If there's a photo to upload, handle it first
@@ -106,6 +107,7 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                 name: '',
                 price: '',
                 color: '',
+                categoryId:'',
                 itemphoto: null,
             });
             setPhotoURL('');

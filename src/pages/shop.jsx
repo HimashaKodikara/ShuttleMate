@@ -6,14 +6,14 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
-import ItemModal from '../components/ItemModel'; // Import the ItemModal we created earlier
+import ItemModal from '../components/ItemModel';
 
 const Shop = () => {
     const [shops, setShops] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isItemModalOpen, setIsItemModalOpen] = useState(false); // New state for item modal
-    const [selectedShop, setSelectedShop] = useState(null); // Track selected shop
-    const [selectedCategory, setSelectedCategory] = useState(null); // Track selected category
+    const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+    const [selectedShop, setSelectedShop] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({
         ShopName: '',
         place: '',
@@ -29,6 +29,7 @@ const Shop = () => {
     const fetchShops = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/shops');
+            console.log("Fetched shops data:", response.data.shops);
             setShops(response.data.shops);
         } catch (error) {
             console.error("Error fetching shops:", error);
@@ -85,6 +86,7 @@ const Shop = () => {
 
     const addItem = (catIndex) => {
         const updatedCategories = [...formData.categories];
+        // Remove the undefined categoryId that was causing errors
         updatedCategories[catIndex].items.push({ itemphoto:'', name: '', price: '', color:'' });
         setFormData((prev) => ({
             ...prev,
@@ -106,9 +108,10 @@ const Shop = () => {
         setStep(1);
     };
 
-    // New function to open the item modal with a specific shop and category
+    // Open the item modal with a specific shop and category
     const openItemModal = (shop, category) => {
-        console.log("Selected Category ID:", category._id);
+        console.log("Opening item modal for shop:", shop._id);
+        console.log("Selected Category:", category);
 
         setSelectedShop(shop);
         setSelectedCategory(category);
@@ -118,7 +121,9 @@ const Shop = () => {
     // Function to handle adding a new item via API
     const handleAddItem = async (newItem) => {
         try {
-            // Refresh the shop data to show the new item
+            console.log("Adding new item:", newItem);
+            
+            // After successful item addition, fetch fresh data
             await fetchShops();
             
             Swal.fire({
@@ -162,7 +167,23 @@ const Shop = () => {
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        const newShop = { ...formData, ShopPhoto: downloadURL };
+                        // Fix: Remove the categoryId reference that doesn't exist
+                        const categoriesWithFixedItems = formData.categories.map(category => ({
+                            ...category,
+                            items: category.items.map(item => ({
+                                itemphoto: item.itemphoto,
+                                name: item.name,
+                                price: item.price,
+                                color: item.color
+                            }))
+                        }));
+                        
+                        const newShop = { 
+                            ...formData, 
+                            ShopPhoto: downloadURL,
+                            categories: categoriesWithFixedItems 
+                        };
+                        
                         axios.post('http://localhost:5000/api/shops', newShop)
                             .then(() => {
                                 fetchShops();
@@ -230,14 +251,15 @@ const Shop = () => {
             console.error("Error deleting shop:", error);
             Swal.fire({
                 title: "Error!",
-                text: "Failed to delete the shop.", // Fixed the text from "court" to "shop"
+                text: "Failed to delete the shop.",
                 icon: "error"
             });
         }
     };
 
     return (
-        <div className="h-screen bg-slate-950">
+        
+        <div className="h-screen  bg-slate-950">
             <Navbar />
             <h1 className='pt-5 text-4xl font-bold text-center text-white'>Shops</h1>
             <div className="flex justify-end mx-20">
@@ -248,7 +270,7 @@ const Shop = () => {
             <ShopTable 
                 shops={shops} 
                 onDelete={handleDeleteShop} 
-                onAddItem={openItemModal} // Pass the function to open item modal
+                onAddItem={openItemModal}
             />
             <Modal
                 isOpen={isModalOpen}
@@ -267,7 +289,6 @@ const Shop = () => {
                 setStep={setStep}
             />
             
-            {/* Add the ItemModal component */}
             <ItemModal 
                 isOpen={isItemModalOpen}
                 onClose={() => setIsItemModalOpen(false)}
