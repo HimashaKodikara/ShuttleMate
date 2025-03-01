@@ -9,6 +9,17 @@ const VideoTable = ({ videos, fetchVideos }) => {
     const columns = React.useMemo(
         () => [
             {
+                Header: 'Thumbnail',
+                accessor: 'Thumbnail',
+                Cell: ({ row }) => (
+                    <img
+                        src={row.original.imgUrl}
+                        alt={row.original.ShopName}
+                        className="object-cover w-12 h-12 mx-auto rounded-full"
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                    />
+                )},
+            {
                 Header: 'Name of Video',
                 accessor: 'videoName',
             },
@@ -87,9 +98,9 @@ const VideoTable = ({ videos, fetchVideos }) => {
             <table {...getTableProps()} className="min-w-full text-center rounded-lg shadow-lg table-auto bg-slate-800">
                 <thead className="text-white bg-blue-900">
                     {headerGroups.map(headerGroup => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
+                        <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
-                                <th {...column.getHeaderProps()} className="px-1 py-4">
+                                <th key={column.id} {...column.getHeaderProps()} className="px-1 py-4">
                                     {column.render('Header')}
                                 </th>
                             ))}
@@ -99,10 +110,11 @@ const VideoTable = ({ videos, fetchVideos }) => {
                 <tbody {...getTableBodyProps()} className="text-slate-300">
                     {rows.map(row => {
                         prepareRow(row);
+                        const { key, ...rowProps } = row.getRowProps();
                         return (
-                            <tr {...row.getRowProps()} className="transition duration-300 ease-in-out border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
+                            <tr key={key} {...rowProps} className="transition duration-300 ease-in-out border-b bg-slate-900 border-slate-700 hover:bg-slate-800">
                                 {row.cells.map(cell => (
-                                    <td {...cell.getCellProps()} className="px-1 py-4">{cell.render('Cell')}</td>
+                                    <td key={cell.column.id} {...cell.getCellProps()} className="px-1 py-4">{cell.render('Cell')}</td>
                                 ))}
                             </tr>
                         );

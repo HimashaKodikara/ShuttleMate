@@ -7,6 +7,17 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
     const columns = React.useMemo(
         () => [
             {
+            Header: 'Coach Photo',
+            accessor: 'Coach Photo',
+            Cell: ({ row }) => (
+                <img
+                    src={row.original.CoachPhoto}
+                    alt={row.original.ShopName}
+                    className="object-cover w-12 h-12 mx-auto rounded-full"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                />
+            )},
+            {
                 Header: 'Name',
                 accessor: 'CoachName',
             },

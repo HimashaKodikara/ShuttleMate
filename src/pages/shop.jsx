@@ -29,7 +29,7 @@ const Shop = () => {
     const fetchShops = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/shops');
-            console.log("Fetched shops data:", response.data.shops);
+            
             setShops(response.data.shops);
         } catch (error) {
             console.error("Error fetching shops:", error);
@@ -259,7 +259,7 @@ const Shop = () => {
 
     return (
         
-        <div className="h-screen  bg-slate-950">
+        <div className="min-h-screen bg-slate-950">
             <Navbar />
             <h1 className='pt-5 text-4xl font-bold text-center text-white'>Shops</h1>
             <div className="flex justify-end mx-20">

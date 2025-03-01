@@ -11,6 +11,7 @@ const VideoPage = () => {
     const [videos, setVideos] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
+        imgUrl:'',
         videoName: '',
         videoCreator: '',
         videoFile: null,
@@ -23,6 +24,7 @@ const VideoPage = () => {
     const fetchVideos = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/videos');
+            console.log(response);
             setVideos(response.data.videos);
         } catch (error) {
             console.error("Error fetching videos:", error);
@@ -157,6 +159,17 @@ const VideoPage = () => {
 
     const columns = React.useMemo(
         () => [
+            {
+                Header: 'Thumbnail',
+                accessor: 'imgUrl',
+                Cell: ({ row }) => (
+                    <img
+                        src={row.original.imgUrl}
+                        alt={row.original.imgUrl}
+                        className="object-cover w-12 h-12 mx-auto rounded-full"
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                    />
+                )},
             {
                 Header: 'Name of Video',
                 accessor: 'videoName',

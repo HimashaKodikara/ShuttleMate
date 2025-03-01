@@ -5,7 +5,17 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 const CourtTable = ({ courts = [],onDelete }) => {
     const columns = React.useMemo(() => [
-        
+        {
+            Header: 'Court Photo',
+            accessor: 'Court Photo',
+            Cell: ({ row }) => (
+                <img
+                    src={row.original.CourtPhoto}
+                    alt={row.original.CourtName}
+                    className="object-cover w-12 h-12 mx-auto rounded-full"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                />
+            )},
         {
             Header: 'Name Of the Court',
             accessor: 'CourtName',
