@@ -11,7 +11,7 @@ const VideoPage = () => {
     const [videos, setVideos] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
-        imgUrl:'',
+        imgUrl: '',
         videoName: '',
         videoCreator: '',
         videoFile: null,
@@ -19,6 +19,8 @@ const VideoPage = () => {
     });
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [thumbnailProgress, setThumbnailProgress] = useState(0);
 
     // Fetch videos from the backend
     const fetchVideos = async () => {
@@ -56,7 +58,14 @@ const VideoPage = () => {
                 'state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log(`Upload is ${progress}% done`);
+
+
+                    // Update the appropriate progress state based on file type
+                    if (filetype === 'videoFile') {
+                        setUploadProgress(Math.round(progress));
+                    } else if (filetype === 'thumbnail') {
+                        setThumbnailProgress(Math.round(progress));
+                    }
                 },
                 (error) => {
                     console.error('Error uploading file:', error);
@@ -67,6 +76,14 @@ const VideoPage = () => {
                     try {
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         console.log(`${filetype} URL:`, downloadURL);
+
+                        // Ensure progress shows as complete
+                        if (filetype === 'videoFile') {
+                            setUploadProgress(100);
+                        } else if (filetype === 'thumbnail') {
+                            setThumbnailProgress(100);
+                        }
+
                         resolve(downloadURL);
                     } catch (error) {
                         console.error('Error getting download URL:', error);
@@ -82,6 +99,8 @@ const VideoPage = () => {
         e.preventDefault();
         setUploading(true);
         setUploadError('');
+        setUploadProgress(0);
+        setThumbnailProgress(0);
 
         try {
             // Validate if files are uploaded
@@ -111,13 +130,17 @@ const VideoPage = () => {
             setUploadError('An error occurred while saving the video. Please try again.');
         } finally {
             setUploading(false);
+            // Reset progress only if modal is closed
+            if (!isModalOpen) {
+                setUploadProgress(0);
+                setThumbnailProgress(0);
+            }
         }
     };
 
-    
     const handleDeleteVideo = async (id) => {
         console.log("Deleting video with ID:", id); // Debugging line
-    
+
         if (!videos.find(video => video._id === id)) {
             Swal.fire({
                 title: "Error!",
@@ -126,7 +149,7 @@ const VideoPage = () => {
             });
             return;
         }
-    
+
         try {
             const result = await Swal.fire({
                 title: "Are you sure?",
@@ -137,7 +160,7 @@ const VideoPage = () => {
                 cancelButtonColor: "#3085d6",
                 confirmButtonText: "Yes, delete it!"
             });
-    
+
             if (result.isConfirmed) {
                 await axios.delete(`http://localhost:5000/api/videos/${id}`);
                 setVideos((prevVideos) => prevVideos.filter(video => video._id !== id)); // Update state
@@ -169,7 +192,8 @@ const VideoPage = () => {
                         className="object-cover w-12 h-12 mx-auto rounded-full"
                         onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
                     />
-                )},
+                )
+            },
             {
                 Header: 'Name of Video',
                 accessor: 'videoName',
@@ -186,7 +210,7 @@ const VideoPage = () => {
                 Header: 'Edit',
                 Cell: ({ row }) => (
                     <button className="px-4 py-1 font-bold text-blue-500 duration-300 ease-in-out transform rounded tran-blsition hover:bg-blue-600 hover:scale-105">
-                        <Pencil size={18}/>
+                        <Pencil size={18} />
                     </button>
                 ),
             },
@@ -197,7 +221,7 @@ const VideoPage = () => {
                         onClick={() => handleDeleteVideo(row.original._id)}
                         className="px-4 py-1 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-600 hover:scale-105"
                     >
-                        <Trash2 size={18}/>
+                        <Trash2 size={18} />
                     </button>
                 ),
             },
@@ -292,6 +316,24 @@ const VideoPage = () => {
                                     className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
                                 />
+                                {uploading && formData.videoFile && (
+                                    <div className="mt-2">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                Uploading video...
+                                            </span>
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {uploadProgress}%
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div
+                                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 text-lg font-medium">Thumbnail</label>
@@ -303,6 +345,24 @@ const VideoPage = () => {
                                     className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
                                 />
+                                {uploading && formData.thumbnail && (
+                                    <div className="mt-2">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                Uploading thumbnail...
+                                            </span>
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {thumbnailProgress}%
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div
+                                                className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
+                                                style={{ width: `${thumbnailProgress}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             {uploadError && (
                                 <div className="mb-4 text-red-500">{uploadError}</div>
@@ -312,6 +372,7 @@ const VideoPage = () => {
                                     type="button"
                                     onClick={toggleModal}
                                     className="px-4 py-2 mr-4 font-bold text-white bg-red-500 rounded hover:bg-red-600"
+                                    disabled={uploading}
                                 >
                                     Cancel
                                 </button>

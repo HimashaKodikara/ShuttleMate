@@ -7,7 +7,7 @@ const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggle
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
                 <h2 className="mb-4 text-2xl font-bold text-center">
-                    {step === 1 ? 'Add New Coacher ' : 'Add New Coacher '}
+                    {step === 1 ? 'Add New Coach' : 'Add New Coach'}
                 </h2>
                 <form onSubmit={handleSubmit}>
                     {step === 1 ? (
@@ -47,25 +47,31 @@ const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggle
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Training Type</label>
-                                <input
-                                    type="text"
+                                <select
                                     name="TrainingType"
                                     value={formData.TrainingType}
                                     onChange={handleChange}
-                                    required
+                                    required 
                                     className="w-full px-3 py-2 border border-gray-300 rounded"
-                                />
+                                >
+                                    <option value="">Select Training Type</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Professional">Professional</option>
+                                </select>
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Certifications</label>
-                                <input
-                                    type="text"
-                                    name="Certifications"
-                                    value={formData.Certifications}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded"
-                                />
+                                <textarea
+                                 type="text"
+                                 name="Certifications"
+                                 value={formData.Certifications}
+                                 onChange={handleChange}
+                                 required
+                                 className="w-full px-3 py-2 border border-gray-300 rounded rows=4">
+                                    
+                                </textarea>
+                                
                             </div>
 
                             {uploadError && <p className="text-red-500">{uploadError}</p>}
@@ -113,13 +119,13 @@ const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggle
                                
                             </div>
                             <div className="flex justify-between">
-                                    <button type="button" onClick={() => setStep(1)} className="px-4 py-2 text-white bg-gray-500 rounded">
-                                        Back
-                                    </button>
-                                    <button type="submit" className="px-4 py-2 text-white bg-blue-500 rounded">
-                                        Submit
-                                    </button>
-                                </div>
+                                <button type="button" onClick={() => setStep(1)} className="px-4 py-2 text-white bg-gray-500 rounded">
+                                    Back
+                                </button>
+                                <button type="submit" className="px-4 py-2 text-white bg-blue-500 rounded">
+                                    Submit
+                                </button>
+                            </div>
                         </>
                     )}
                 </form>

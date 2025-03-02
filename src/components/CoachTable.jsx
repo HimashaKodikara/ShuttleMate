@@ -32,7 +32,7 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
             {
                 Header: 'Edit',
                 Cell: ({ row }) => (
-                    <button className="px-4 py-1 font-bold text-white bg-blue-500 rounded hover:bg-blue-600">
+                    <button className="px-4 py-1 font-bold text-blue-500 rounded hover:bg-blue-600">
                         <Pencil size={18}/>
                     </button>
                 ),
@@ -41,7 +41,7 @@ const CoacherTable = ({ coachers = [], onDelete }) => {
                 Header: 'Delete',
                 Cell: ({ row }) => (
                     <button
-                        className="px-4 py-1 font-bold text-white rounded hover:bg-red-600"
+                        className="px-4 py-1 font-bold text-red-500 text hover:bg-red-600"
                         onClick={() => row.original && row.original._id && onDelete(row.original._id)}
                     >
                         <Trash2 size={18}/>

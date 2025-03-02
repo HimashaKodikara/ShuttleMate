@@ -147,7 +147,7 @@ const Coachers = () => {
             });
 
             if (result.isConfirmed) {
-                await axios.delete(`http://localhost:5000/api/coachers/coach/${id}`);
+                await axios.delete(`http://localhost:5000/api/Coachers/coach/${id}`);
                 setCoachers(coachers.filter(coach => coach._id !== id));
 
                 Swal.fire({
