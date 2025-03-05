@@ -7,7 +7,7 @@ const CourtTable = ({ courts = [],onDelete }) => {
     const columns = React.useMemo(() => [
         {
             Header: 'Court Photo',
-            accessor: 'Court Photo',
+            accessor: 'CourtPhoto',
             Cell: ({ row }) => (
                 <img
                     src={row.original.CourtPhoto}

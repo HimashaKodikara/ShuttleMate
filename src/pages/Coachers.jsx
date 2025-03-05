@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Modal from '../components/CoachModel';
-import CoacherTable from '../components/CoachTable';
+import Modal from '../components/EditCoachModel';  // Make sure to import the correct Modal component
+import CoacherTable from '../components/CoachTable';  // Import the coach table component
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
@@ -21,7 +21,7 @@ const Coachers = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
-
+    const [editingCoachId, setEditingCoachId] = useState(null); // Track the coach being edited
 
     const fetchCoachers = async () => {
         try {
@@ -29,6 +29,18 @@ const Coachers = () => {
             setCoachers(response.data.coachers);
         } catch (error) {
             console.error("Error fetching coachers:", error);
+        }
+    };
+
+    const fetchCoacherById = async (id) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/Coachers/${id}`);
+            setFormData(response.data.coacher);
+            setStep(2);
+            setEditingCoachId(id);  // Set the coach id being edited
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error('Error fetching coach:', error);
         }
     };
 
@@ -73,6 +85,15 @@ const Coachers = () => {
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setStep(1);
+        setEditingCoachId(null);
+        setFormData({
+            CoachName: '',
+            Tel: '',
+            TrainingType: '',
+            Certifications: '',
+            TrainingAreas: [{ CourtName: '', Area: '' }],
+            CoachPhoto: null,
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -93,46 +114,59 @@ const Coachers = () => {
 
             uploadTask.on(
                 'state_changed',
-                (snapshot) => { },
+                (snapshot) => {},
                 (error) => {
                     setUploadError('Failed to upload the coach photo.');
                     setUploading(false);
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        const newCoacher = { ...formData, CoachPhoto: downloadURL };
-                        axios.post('http://localhost:5000/api/coachers', newCoacher)
-                            .then(() => {
-                                fetchCoachers();
-                                setFormData({
-                                    CoachName: '',
-                                    Tel: '',
-                                    TrainingType: '',
-                                    Certifications: '',
-                                    TrainingAreas: [{ CourtName: '', Area: '' }],
-                                    CoachPhoto: null,
-                                });
-                                setIsModalOpen(false);
-                                setUploading(false);
+                        const updatedCoacher = { ...formData, CoachPhoto: downloadURL };
 
+                        if (editingCoachId) {
+                            // If we're editing an existing coach, send a PUT request
+                            axios.put(`http://localhost:5000/api/Coachers/${editingCoachId}`, updatedCoacher)
+                                .then(() => {
+                                    fetchCoachers();
+                                    toggleModal();  // Close the modal
+                                    setUploading(false);
 
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'Coacher added successfully.',
-                                    icon: 'success',
-                                    confirmButtonText: 'Okay'
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Coacher updated successfully.',
+                                        icon: 'success',
+                                        confirmButtonText: 'Okay'
+                                    });
+                                })
+                                .catch((error) => {
+                                    console.error('Error updating coacher:', error);
+                                    setUploading(false);
                                 });
-                            })
-                            .catch((error) => {
-                                console.error('Error adding coacher:', error);
-                                setUploading(false);
-                            });
+                        } else {
+                            // If it's a new coach, send a POST request
+                            axios.post('http://localhost:5000/api/coachers', updatedCoacher)
+                                .then(() => {
+                                    fetchCoachers();
+                                    toggleModal();  // Close the modal
+                                    setUploading(false);
+
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Coacher added successfully.',
+                                        icon: 'success',
+                                        confirmButtonText: 'Okay'
+                                    });
+                                })
+                                .catch((error) => {
+                                    console.error('Error adding coacher:', error);
+                                    setUploading(false);
+                                });
+                        }
                     });
                 }
             );
         }
     };
-
 
     const handleDeleteCoacher = async (id) => {
         try {
@@ -165,6 +199,7 @@ const Coachers = () => {
             });
         }
     };
+
     return (
         <div className="h-screen bg-slate-950">
             <Navbar />
@@ -175,12 +210,13 @@ const Coachers = () => {
                     Add New Coacher
                 </button>
             </div>
-            <CoacherTable coachers={coachers} onDelete={handleDeleteCoacher} />
+            <CoacherTable coachers={coachers} onDelete={handleDeleteCoacher} onEdit={fetchCoacherById} />
             <Modal
                 isOpen={isModalOpen}
                 step={step}
                 formData={formData}
                 handleChange={handleChange}
+                
                 handleSubmit={handleSubmit}
                 toggleModal={toggleModal}
                 addTrainingArea={addTrainingArea}
