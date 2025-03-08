@@ -148,7 +148,7 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
 CoacherTable.propTypes = {
     coachers: PropTypes.arrayOf(
         PropTypes.shape({
-            _id: PropTypes.string.isRequired,
+            _id: PropTypes.string,
             CoachName: PropTypes.string.isRequired,
             TrainingType: PropTypes.string.isRequired,
             Tel: PropTypes.string.isRequired,

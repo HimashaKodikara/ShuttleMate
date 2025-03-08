@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from '../components/CourtModel';
 import CourtTable from '../components/CourtTable';
+import EditCourtModal from '../components/EditCourtModel';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
@@ -10,6 +11,7 @@ import Navbar from '../components/Navbar';
 const Courts = () => {
     const [courts, setCourts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         CourtName: '',
         Tel: '',
@@ -20,6 +22,7 @@ const Courts = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
+    const [editingCourtId, setEditingCourtId] = useState(null);
 
     // Fetch all courts from API
     const fetchCourts = async () => {
@@ -35,7 +38,17 @@ const Courts = () => {
             });
         }
     };
-
+    const fetchCoacherById = async (id) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/courts/${id}`);
+            setFormData(response.data.court);
+            setStep(2);
+            setEditingCourtId(id);
+            setIsEditModalOpen(true); // Open Edit Coach Modal
+        } catch (error) {
+            console.error('Error fetching coach:', error);
+        }
+    };
     useEffect(() => {
         fetchCourts();
     }, []);
@@ -82,74 +95,149 @@ const Courts = () => {
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setStep(1);
+        setEditingCourtId(null);
+        setFormData({
+            CourtName: '',
+            Tel: '',
+            place: '',
+            Directions: [{ latitude: '', longitude: '' }],
+            CourtPhoto: null,
+        })
     };
-
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (step === 1) {
             setStep(2);
         } else {
             if (!formData.CourtPhoto) {
-                setUploadError('Please upload a court photo.');
+                setUploadError('Please upload a coach photo.');
                 return;
             }
 
             setUploading(true);
             setUploadError('');
 
-            const storageRef = ref(storage, `courts/${formData.CourtPhoto.name}`);
+            const storageRef = ref(storage, `coaches/${formData.CourtPhoto.name}`);
             const uploadTask = uploadBytesResumable(storageRef, formData.CourtPhoto);
 
             uploadTask.on(
                 'state_changed',
                 (snapshot) => {},
                 (error) => {
-                    setUploadError('Failed to upload the court photo.');
+                    setUploadError('Failed to upload the coach photo.');
                     setUploading(false);
                 },
-                async () => {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    
-                    try {
-                        const newCourt = {
-                            ...formData,
-                            CourtPhoto: downloadURL,  // Use URL instead of file object
-                        };
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        const updatedCourt = { ...formData, CourtPhoto: downloadURL };
 
-                        await axios.post('http://localhost:5000/api/courts', newCourt);
-                        fetchCourts();
-                        setFormData({
-                            CourtName: '',
-                            Tel: '',
-                            place: '',
-                            Directions: [{ latitude: '', longitude: '' }],
-                            CourtPhoto: null,
-                        });
-
-                        setIsModalOpen(false);
-                        setUploading(false);
-
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Court added successfully.',
-                            icon: 'success',
-                            confirmButtonText: 'Okay',
-                        });
-                    } catch (error) {
-                        console.error('Error adding court:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Failed to add court.',
-                            icon: 'error'
-                        });
-                        setUploading(false);
-                    }
+                        if (editingCourtId) {
+                            axios.put(`http://localhost:5000/api/courts/${editingCourtId}`, updatedCourt)
+                                .then(() => {
+                                    fetchCourts();
+                                    toggleModal();
+                                    setUploading(false);
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Court updated successfully.',
+                                        icon: 'success',
+                                        confirmButtonText: 'Okay',
+                                    });
+                                })
+                                .catch((error) => {
+                                    console.error('Error updating court:', error);
+                                    setUploading(false);
+                                });
+                        } else {
+                            axios.post('http://localhost:5000/api/courts', updatedCourt)
+                                .then(() => {
+                                    fetchCourts();
+                                    toggleModal();
+                                    setUploading(false);
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Court added successfully.',
+                                        icon: 'success',
+                                        confirmButtonText: 'Okay',
+                                    });
+                                })
+                                .catch((error) => {
+                                    console.error('Error adding court:', error);
+                                    setUploading(false);
+                                });
+                        }
+                    });
                 }
             );
         }
     };
+
+    // Handle form submission
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     if (step === 1) {
+    //         setStep(2);
+    //     } else {
+    //         if (!formData.CourtPhoto) {
+    //             setUploadError('Please upload a court photo.');
+    //             return;
+    //         }
+
+    //         setUploading(true);
+    //         setUploadError('');
+
+    //         const storageRef = ref(storage, `courts/${formData.CourtPhoto.name}`);
+    //         const uploadTask = uploadBytesResumable(storageRef, formData.CourtPhoto);
+
+    //         uploadTask.on(
+    //             'state_changed',
+    //             (snapshot) => { },
+    //             (error) => {
+    //                 setUploadError('Failed to upload the court photo.');
+    //                 setUploading(false);
+    //             },
+    //             async () => {
+    //                 const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+    //                 try {
+    //                     const newCourt = {
+    //                         ...formData,
+    //                         CourtPhoto: downloadURL,  // Use URL instead of file object
+    //                     };
+
+    //                     await axios.post('http://localhost:5000/api/courts', newCourt);
+    //                     fetchCourts();
+    //                     setFormData({
+    //                         CourtName: '',
+    //                         Tel: '',
+    //                         place: '',
+    //                         Directions: [{ latitude: '', longitude: '' }],
+    //                         CourtPhoto: null,
+    //                     });
+
+    //                     setIsModalOpen(false);
+    //                     setUploading(false);
+
+    //                     Swal.fire({
+    //                         title: 'Success!',
+    //                         text: 'Court added successfully.',
+    //                         icon: 'success',
+    //                         confirmButtonText: 'Okay',
+    //                     });
+    //                 } catch (error) {
+    //                     console.error('Error adding court:', error);
+    //                     Swal.fire({
+    //                         title: 'Error!',
+    //                         text: 'Failed to add court.',
+    //                         icon: 'error'
+    //                     });
+    //                     setUploading(false);
+    //                 }
+    //             }
+    //         );
+    //     }
+    // };
 
     // Delete court by ID
     const handleDeleteCourt = async (id) => {
@@ -193,9 +281,34 @@ const Courts = () => {
             });
         }
     };
-
+    
+    const handleUpdateCourt = async (updatedCourt) => {
+        try {
+            const response = await axios.put(`http://localhost:5000/api/courts/${updatedCourt._id}`, updatedCourt);
+    
+            // Update the courts state
+            setCourts((prevCourts) => prevCourts.map(court => 
+                court._id === updatedCourt._id ? response.data : court
+            ));
+    
+            Swal.fire({
+                title: "Updated!",
+                text: "Court has been updated.",
+                icon: "success",
+            });
+    
+        } catch (error) {
+            console.error("Error updating court:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to update the court.",
+                icon: "error",
+            });
+        }
+    };
+    
     return (
-        <div className="h-full h-screen bg-slate-950">
+        <div className="min-h-screen bg-slate-950">
             <Navbar />
             <h1 className="pt-5 text-4xl font-bold text-center text-white">Courts</h1>
             <div className="flex justify-end mx-20">
@@ -206,7 +319,12 @@ const Courts = () => {
                     Add New Court
                 </button>
             </div>
-            <CourtTable courts={courts} onDelete={handleDeleteCourt} />
+            <CourtTable 
+                courts={courts} 
+                onDelete={handleDeleteCourt} 
+                onUpdate={handleUpdateCourt} 
+                onEdit={fetchCoacherById}
+            />
             <Modal
                 isOpen={isModalOpen}
                 step={step}
@@ -218,6 +336,16 @@ const Courts = () => {
                 removeDirection={removeDirection}
                 handleDirectionsChange={handleDirectionsChange}
                 uploadError={uploadError}
+                setStep={setStep}
+            />
+            <EditCourtModal
+            
+                isOpen={isEditModalOpen}
+                formData={formData}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                
+                toggleModal={() => setIsEditModalOpen(false)}
                 setStep={setStep}
             />
         </div>
