@@ -132,7 +132,7 @@ const Courts = () => {
                         const updatedCourt = { ...formData, CourtPhoto: downloadURL };
 
                         if (editingCourtId) {
-                            axios.put(`http://localhost:5000/api/courts/${editingCourtId}`, updatedCourt)
+                            axios.put(`http://localhost:5000/api/courts/court/${editingCourtId}`, updatedCourt)
                                 .then(() => {
                                     fetchCourts();
                                     toggleModal();
@@ -282,30 +282,25 @@ const Courts = () => {
         }
     };
     
-    const handleUpdateCourt = async (updatedCourt) => {
-        try {
-            const response = await axios.put(`http://localhost:5000/api/courts/${updatedCourt._id}`, updatedCourt);
-    
-            // Update the courts state
-            setCourts((prevCourts) => prevCourts.map(court => 
-                court._id === updatedCourt._id ? response.data : court
-            ));
-    
+    const handleUpdateCourt = (updatedCourt) => {
+        axios.put(`http://localhost:5000/api/courts/court/${updatedCourt._id}`, updatedCourt)
+          .then((response) => {
+            fetchCourts();
             Swal.fire({
-                title: "Updated!",
-                text: "Court has been updated.",
-                icon: "success",
+              title: "Updated!",
+              text: "Court has been updated.",
+              icon: "success",
             });
-    
-        } catch (error) {
+          })
+          .catch((error) => {
             console.error("Error updating court:", error);
             Swal.fire({
-                title: "Error!",
-                text: "Failed to update the court.",
-                icon: "error",
+              title: "Error!",
+              text: "Failed to update the court.",
+              icon: "error",
             });
-        }
-    };
+          });
+      };
     
     return (
         <div className="min-h-screen bg-slate-950">

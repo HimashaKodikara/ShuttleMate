@@ -42,7 +42,7 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
             Header: 'Edit',
             accessor: 'edit',
             Cell: ({ row }) => (
-                <button 
+                <button
                     className="px-4 py-1 font-bold text-blue-500 rounded hover:bg-blue-600"
                     onClick={() => {
                         setSelectedCourt(row.original);
@@ -53,7 +53,7 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
                 </button>
             ),
         },
-        { 
+        {
             Header: 'Delete',
             Cell: ({ row }) => (
                 <button
@@ -96,9 +96,9 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
                     {rows.map(row => {
                         prepareRow(row);
                         return (
-                            <tr {...row.getRowProps()} className="bg-slate-900 hover:bg-slate-800" key={row.id}>
+                            <tr {...row.getRowProps()} className="bg-slate-900 hover:bg-slate-800">
                                 {row.cells.map(cell => (
-                                    <td {...cell.getCellProps()} className="px-1 py-4" key={cell.column.id}>
+                                    <td {...cell.getCellProps()} className="px-1 py-4">
                                         {cell.render('Cell')}
                                     </td>
                                 ))}
@@ -106,6 +106,7 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
                         );
                     })}
                 </tbody>
+
             </table>
 
             {modalOpen && selectedCourt && (

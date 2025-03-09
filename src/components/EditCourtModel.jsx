@@ -12,31 +12,29 @@ const EditCourtModal = ({
     removeDirection,
     step,
     setStep,
-    isEditing,
 }) => {
     if (!isOpen) return null;
-    
+
     const handleNextStep = () => {
         console.log('Form Data:', formData);
-        
-        if (!formData.CourtName?.trim() || 
-            !formData.Tel?.trim() || 
-            !formData.place?.trim() 
-            ) {
+
+        if (!formData?.CourtName?.trim() ||
+            !formData?.Tel?.trim() ||
+            !formData?.place?.trim() 
+        ) {
             console.log('Validation failed');
             alert('Please fill in all required fields before proceeding.');
             return;
         }
-        
+
         console.log('Moving to next step');
         setStep(2);
     };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
             <div className="w-full max-w-lg p-6 bg-white rounded-lg shadow-lg">
-                <h2 className="mb-4 text-2xl font-bold text-center">
-                    {isEditing ? 'Edit Court' : 'Add New Court'}
-                </h2>
+            <h2 className="mb-4 text-2xl font-bold text-center">Edit Court</h2>
                 <form onSubmit={handleSubmit}>
                     {step === 1 ? (
                         <>
@@ -105,6 +103,7 @@ const EditCourtModal = ({
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Court Address</label>
+                                
                                 {formData.Directions && formData.Directions.length > 0 ? (
                                     formData.Directions.map((direction, index) => (
                                         <div key={index} className="flex flex-col gap-2 mb-4">
@@ -114,7 +113,7 @@ const EditCourtModal = ({
                                                     <input
                                                         type="text"
                                                         name="latitude"
-                                                        value={direction.latitude}
+                                                        value={direction.latitude || ''}
                                                         onChange={(e) => handleDirectionsChange(index, e)}
                                                         required
                                                         className="w-full px-3 py-2 border border-gray-300 rounded"
@@ -125,7 +124,7 @@ const EditCourtModal = ({
                                                     <input
                                                         type="text"
                                                         name="longitude"
-                                                        value={direction.longitude}
+                                                        value={direction.longitude || ''}
                                                         onChange={(e) => handleDirectionsChange(index, e)}
                                                         required
                                                         className="w-full px-3 py-2 border border-gray-300 rounded"
@@ -163,11 +162,8 @@ const EditCourtModal = ({
                                 >
                                     Back
                                 </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 text-white bg-blue-500 rounded"
-                                >
-                                    {isEditing ? 'Update' : 'Submit'}
+                                <button type="submit" className="px-4 py-2 text-white bg-blue-500 rounded">
+                                    Submit
                                 </button>
                             </div>
                         </>
