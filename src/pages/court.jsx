@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Modal from '../components/CourtModel';
-import CourtTable from '../components/CourtTable';
-import EditCourtModal from '../components/EditCourtModel';
+import Modal from '../components/Court/CourtModel';
+import CourtTable from '../components/Court/CourtTable';
+import EditCourtModal from '../components/Court/EditCourtModel';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
@@ -28,6 +28,8 @@ const Courts = () => {
     const fetchCourts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/courts');
+            console.error("Data:", response);
+
             setCourts(response.data.courts);
         } catch (error) {
             console.error("Error fetching courts:", error);
@@ -303,9 +305,9 @@ const Courts = () => {
       };
     
     return (
-        <div className="min-h-screen bg-slate-950">
+        <div className="">
             <Navbar />
-            <h1 className="pt-5 text-4xl font-bold text-center text-white">Courts</h1>
+            <h1 className="pt-10 text-4xl font-bold text-center ">Courts</h1>
             <div className="flex justify-end mx-20">
                 <button
                     onClick={toggleModal}

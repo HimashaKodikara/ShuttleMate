@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase/firebaseconfig';
+import { storage } from '../../firebase/firebaseconfig';
 import axios from 'axios';
 
-const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
+const videoModel = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
         videoName: '',
         videoCreator: '',
@@ -14,34 +14,9 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
     const [uploadError, setUploadError] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [thumbnailProgress, setThumbnailProgress] = useState(0);
-    const [changingVideo, setChangingVideo] = useState(false);
-    const [changingThumbnail, setChangingThumbnail] = useState(false);
-
-    // Initialize form data when videoData changes
-    useEffect(() => {
-        if (videoData) {
-            setFormData({
-                videoName: videoData.videoName || '',
-                videoCreator: videoData.videoCreator || '',
-                videoFile: null,
-                thumbnail: null,
-                currentVideoUrl: videoData.videoUrl || '',
-                currentImgUrl: videoData.imgUrl || ''
-            });
-        }
-    }, [videoData]);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
-        
-        if (name === 'videoFile' && files) {
-            setChangingVideo(true);
-        }
-        
-        if (name === 'thumbnail' && files) {
-            setChangingThumbnail(true);
-        }
-        
         setFormData((prev) => ({
             ...prev,
             [name]: files ? files[0] : value,
@@ -97,41 +72,37 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
         e.preventDefault();
         setUploading(true);
         setUploadError('');
-        
-        if (changingVideo) setUploadProgress(0);
-        if (changingThumbnail) setThumbnailProgress(0);
+        setUploadProgress(0);
+        setThumbnailProgress(0);
 
         try {
-            let videoURL = formData.currentVideoUrl;
-            let thumbnailURL = formData.currentImgUrl;
-
-            // Only upload new video if provided
-            if (changingVideo && formData.videoFile) {
-                videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
+            // Validate if files are uploaded
+            if (!formData.videoFile || !formData.thumbnail) {
+                setUploadError('Please upload both video and thumbnail.');
+                return;
             }
 
-            // Only upload new thumbnail if provided
-            if (changingThumbnail && formData.thumbnail) {
-                thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
-            }
+            // Upload video and thumbnail
+            const videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
+            const thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
 
-            // Send PUT request to update the video
-            const response = await axios.put(`http://localhost:5000/api/videos/video/${videoData._id}`, {
+            // Send POST request to the backend
+            const response = await axios.post(`http://localhost:5000/api/videos/`, {
                 videoUrl: videoURL,
                 imgUrl: thumbnailURL,
                 videoName: formData.videoName,
                 videoCreator: formData.videoCreator,
             });
 
-            onSuccess(); // Refresh video list after update
+            console.log('Video saved:', response.data);
+            setFormData({ videoName: '', videoCreator: '', videoFile: null, thumbnail: null });
+            onSuccess(); // Refresh video list after upload
             onClose(); // Close modal
         } catch (error) {
-            console.error('Error updating video:', error);
-            setUploadError('An error occurred while updating the video. Please try again.');
+            console.error('Error uploading or saving video:', error);
+            setUploadError('An error occurred while saving the video. Please try again.');
         } finally {
             setUploading(false);
-            setChangingVideo(false);
-            setChangingThumbnail(false);
         }
     };
 
@@ -140,7 +111,7 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-auto bg-black bg-opacity-50">
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
-                <h2 className="mb-4 text-2xl font-bold text-center">Edit Video</h2>
+                <h2 className="mb-4 text-2xl font-bold text-center">Add New Video</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block mb-2 text-lg font-medium">Video Name</label>
@@ -164,34 +135,21 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                             required
                         />
                     </div>
-                    
                     <div className="mb-4">
-                        <div className="flex items-center mb-2">
-                            <label className="text-lg font-medium">Current Video</label>
-                            {formData.currentVideoUrl && (
-                                <a 
-                                    href={formData.currentVideoUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="ml-2 text-sm text-blue-500 underline"
-                                >
-                                    View Current Video
-                                </a>
-                            )}
-                        </div>
-                        <label className="block mb-2 text-sm text-gray-600">Upload new video (optional)</label>
+                        <label className="block mb-2 text-lg font-medium">Upload Video</label>
                         <input
                             type="file"
                             name="videoFile"
                             accept="video/*"
                             onChange={handleChange}
                             className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
                         />
-                        {uploading && changingVideo && (
+                        {uploading && formData.videoFile && (
                             <div className="mt-2">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700">
-                                        Uploading new video...
+                                        Uploading video...
                                     </span>
                                     <span className="text-sm font-medium text-gray-700">
                                         {uploadProgress}%
@@ -206,32 +164,21 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                             </div>
                         )}
                     </div>
-                    
                     <div className="mb-4">
-                        <div className="flex items-center justify-between mb-2">
-                            <label className="text-lg font-medium">Current Thumbnail</label>
-                            {formData.currentImgUrl && (
-                                <img 
-                                    src={formData.currentImgUrl} 
-                                    alt="Current thumbnail" 
-                                    className="object-cover w-16 h-16 ml-2 border rounded"
-                                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
-                                />
-                            )}
-                        </div>
-                        <label className="block mb-2 text-sm text-gray-600">Upload new thumbnail (optional)</label>
+                        <label className="block mb-2 text-lg font-medium">Thumbnail</label>
                         <input
                             type="file"
                             name="thumbnail"
                             accept="image/*"
                             onChange={handleChange}
                             className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
                         />
-                        {uploading && changingThumbnail && (
+                        {uploading && formData.thumbnail && (
                             <div className="mt-2">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700">
-                                        Uploading new thumbnail...
+                                        Uploading thumbnail...
                                     </span>
                                     <span className="text-sm font-medium text-gray-700">
                                         {thumbnailProgress}%
@@ -263,7 +210,7 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                             disabled={uploading}
                             className="px-4 py-2 font-bold text-white bg-green-500 rounded hover:bg-green-600"
                         >
-                            {uploading ? 'Updating...' : 'Update Video'}
+                            {uploading ? 'Uploading...' : 'Submit'}
                         </button>
                     </div>
                 </form>
@@ -272,4 +219,4 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
     );
 };
 
-export default EditVideoModal;
+export default videoModel;

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Modal from '../components/shopModel';
-import ShopTable from '../components/shopTable';
+import Modal from '../components/Shop/shopModel';
+import ShopTable from '../components/Shop/shopTable';
+import EditShopModal from '../components/Shop/shopTable';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
-import ItemModal from '../components/ItemModel';
+import ItemModal from '../components/Shop/ItemModel';
 
 const Shop = () => {
     const [shops, setShops] = useState([]);
@@ -19,17 +20,28 @@ const Shop = () => {
         place: '',
         Tel: '',
         website: '',
-        categories: [{ categoryName: '', items: [{ itemphoto:'', name: '', price: '', color:'' }] }],
+        categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
         ShopPhoto: null,
     });
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
 
+    // Edit shop state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        ShopName: '',
+        place: '',
+        Tel: '',
+        website: '',
+        ShopPhotoUrl: '',
+        categories: []
+    });
+    const [editStep, setEditStep] = useState(1);
+
     const fetchShops = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/shops');
-            
             setShops(response.data.shops);
         } catch (error) {
             console.error("Error fetching shops:", error);
@@ -57,7 +69,7 @@ const Shop = () => {
             return { ...prev, categories: updatedCategories };
         });
     };
-    
+
     const handleItemChange = (catIndex, itemIndex, e) => {
         const { name, value } = e.target;
         const updatedCategories = [...formData.categories];
@@ -71,7 +83,7 @@ const Shop = () => {
     const addCategory = () => {
         setFormData((prev) => ({
             ...prev,
-            categories: [...prev.categories, { categoryName: '', items: [{itemphoto:'', name: '', price: '', color:'' }] }],
+            categories: [...prev.categories, { categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
         }));
     };
 
@@ -86,8 +98,7 @@ const Shop = () => {
 
     const addItem = (catIndex) => {
         const updatedCategories = [...formData.categories];
-        // Remove the undefined categoryId that was causing errors
-        updatedCategories[catIndex].items.push({ itemphoto:'', name: '', price: '', color:'' });
+        updatedCategories[catIndex].items.push({ itemphoto: '', name: '', price: '', color: '' });
         setFormData((prev) => ({
             ...prev,
             categories: updatedCategories,
@@ -122,10 +133,10 @@ const Shop = () => {
     const handleAddItem = async (newItem) => {
         try {
             console.log("Adding new item:", newItem);
-            
+
             // After successful item addition, fetch fresh data
             await fetchShops();
-            
+
             Swal.fire({
                 title: 'Success!',
                 text: 'Item added successfully.',
@@ -160,7 +171,7 @@ const Shop = () => {
 
             uploadTask.on(
                 'state_changed',
-                () => {},
+                () => { },
                 (error) => {
                     setUploadError('Failed to upload the shop photo.');
                     setUploading(false);
@@ -177,13 +188,13 @@ const Shop = () => {
                                 color: item.color
                             }))
                         }));
-                        
-                        const newShop = { 
-                            ...formData, 
+
+                        const newShop = {
+                            ...formData,
                             ShopPhoto: downloadURL,
-                            categories: categoriesWithFixedItems 
+                            categories: categoriesWithFixedItems
                         };
-                        
+
                         axios.post('http://localhost:5000/api/shops', newShop)
                             .then(() => {
                                 fetchShops();
@@ -192,7 +203,7 @@ const Shop = () => {
                                     place: '',
                                     Tel: '',
                                     website: '',
-                                    categories: [{ categoryName: '', items: [{ itemphoto:'', name: '', price: '', color:'' }] }],
+                                    categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
                                     ShopPhoto: null,
                                 });
                                 setIsModalOpen(false);
@@ -257,21 +268,230 @@ const Shop = () => {
         }
     };
 
+    // Edit shop handlers
+    const handleEditClick = (shop) => {
+        setSelectedShop(shop);
+        setEditFormData({
+            ShopName: shop.ShopName,
+            Tel: shop.Tel,
+            place: shop.place,
+            website: shop.website || '',
+            ShopPhotoUrl: shop.ShopPhoto,
+            categories: shop.categories?.map(cat => ({
+                ...cat,
+                items: cat.items || []
+            })) || []
+        });
+        setIsEditModalOpen(true);
+        setEditStep(1);
+    };
+
+    const toggleEditModal = () => {
+        setIsEditModalOpen(!isEditModalOpen);
+        if (!isEditModalOpen) {
+            setEditFormData({
+                ShopName: '',
+                place: '',
+                Tel: '',
+                website: '',
+                ShopPhotoUrl: '',
+                categories: []
+            });
+            setUploadError('');
+        }
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value, type, files } = e.target;
+
+        if (type === 'file' && files[0]) {
+            // Handle file upload preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditFormData(prev => ({
+                    ...prev,
+                    ShopPhotoUrl: reader.result,
+                    ShopPhoto: files[0] // Store the actual file for upload
+                }));
+            };
+            reader.readAsDataURL(files[0]);
+        } else {
+            setEditFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+
+    const handleEditCategoryChange = (categoryIndex, e) => {
+        const { name, value } = e.target;
+        const updatedCategories = [...editFormData.categories];
+        updatedCategories[categoryIndex] = {
+            ...updatedCategories[categoryIndex],
+            [name]: value
+        };
+        setEditFormData(prev => ({
+            ...prev,
+            categories: updatedCategories
+        }));
+    };
+
+    const handleEditItemChange = (categoryIndex, itemIndex, field, value) => {
+        const updatedCategories = [...editFormData.categories];
+        if (!updatedCategories[categoryIndex].items) {
+            updatedCategories[categoryIndex].items = [];
+        }
+        updatedCategories[categoryIndex].items[itemIndex] = {
+            ...updatedCategories[categoryIndex].items[itemIndex],
+            [field]: value
+        };
+        setEditFormData(prev => ({
+            ...prev,
+            categories: updatedCategories
+        }));
+    };
+
+    const addEditCategory = () => {
+        setEditFormData(prev => ({
+            ...prev,
+            categories: [...prev.categories, { categoryName: '', items: [] }]
+        }));
+    };
+
+    const removeEditCategory = (index) => {
+        const updatedCategories = [...editFormData.categories];
+        updatedCategories.splice(index, 1);
+        setEditFormData(prev => ({
+            ...prev,
+            categories: updatedCategories
+        }));
+    };
+
+    const addEditItem = (categoryIndex) => {
+        const updatedCategories = [...editFormData.categories];
+        if (!updatedCategories[categoryIndex].items) {
+            updatedCategories[categoryIndex].items = [];
+        }
+        updatedCategories[categoryIndex].items.push({ name: '' });
+        setEditFormData(prev => ({
+            ...prev,
+            categories: updatedCategories
+        }));
+    };
+
+    const removeEditItem = (categoryIndex, itemIndex) => {
+        const updatedCategories = [...editFormData.categories];
+        updatedCategories[categoryIndex].items.splice(itemIndex, 1);
+        setEditFormData(prev => ({
+            ...prev,
+            categories: updatedCategories
+        }));
+    };
+
+    const handleUpdateShop = async (shopId, updatedData) => {
+        try {
+            setUploading(true);
+            setUploadError('');
+
+            // Check if there's a new photo to upload
+            if (updatedData.ShopPhoto && updatedData.ShopPhoto instanceof File) {
+                const storageRef = ref(storage, `shops/${updatedData.ShopPhoto.name}`);
+                const uploadTask = uploadBytesResumable(storageRef, updatedData.ShopPhoto);
+
+                uploadTask.on(
+                    'state_changed',
+                    () => { },
+                    (error) => {
+                        setUploadError('Failed to upload the shop photo.');
+                        setUploading(false);
+                    },
+                    async () => {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                        // Update with new photo URL
+                        const updateData = {
+                            ShopName: updatedData.ShopName,
+                            Tel: updatedData.Tel,
+                            place: updatedData.place,
+                            website: updatedData.website,
+                            ShopPhoto: downloadURL,
+                            categories: updatedData.categories
+                        };
+
+                        await axios.put(`http://localhost:5000/api/shops/shop/${shopId}`, updateData);
+
+                        fetchShops();
+                        setIsEditModalOpen(false);
+                        setUploading(false);
+
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Shop updated successfully.',
+                            icon: 'success'
+                        });
+                    }
+                );
+            } else {
+                // No new photo, just update other fields
+                const updateData = {
+                    ShopName: updatedData.ShopName,
+                    Tel: updatedData.Tel,
+                    place: updatedData.place,
+                    website: updatedData.website,
+                    categories: updatedData.categories
+                };
+
+                await axios.put(`http://localhost:5000/api/shops/shop/${shopId}`, updateData);
+
+                fetchShops();
+                setIsEditModalOpen(false);
+                setUploading(false);
+
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Shop updated successfully.',
+                    icon: 'success'
+                });
+            }
+        } catch (error) {
+            console.error('Error updating shop:', error);
+            setUploading(false);
+
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update shop.',
+                icon: 'error'
+            });
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+
+        if (editStep === 1) {
+            setEditStep(2);
+        } else {
+            await handleUpdateShop(selectedShop._id, editFormData);
+        }
+    };
+
     return (
-        
-        <div className="min-h-screen bg-slate-950">
+        <div className="">
             <Navbar />
-            <h1 className='pt-5 text-4xl font-bold text-center text-white'>Shops</h1>
+            <h1 className='pt-5 text-4xl font-bold text-center'>Shops</h1>
             <div className="flex justify-end mx-20">
                 <button onClick={toggleModal} className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400">
                     Add New Shop
                 </button>
             </div>
-            <ShopTable 
-                shops={shops} 
-                onDelete={handleDeleteShop} 
+            <ShopTable
+                shops={shops}
+                onDelete={handleDeleteShop}
                 onAddItem={openItemModal}
+                onEdit={handleEditClick}
             />
+
+            {/* Add Shop Modal */}
             <Modal
                 isOpen={isModalOpen}
                 step={step}
@@ -288,8 +508,27 @@ const Shop = () => {
                 uploadError={uploadError}
                 setStep={setStep}
             />
-            
-            <ItemModal 
+
+            {/* Edit Shop Modal */}
+            <EditShopModal
+                isOpen={isEditModalOpen}
+                formData={editFormData}
+                handleChange={handleEditChange}
+                handleCategoryChange={handleEditCategoryChange}
+                handleItemChange={handleEditItemChange}
+                handleSubmit={handleEditSubmit}
+                toggleModal={toggleEditModal}
+                uploadError={uploadError}
+                addCategory={addEditCategory}
+                removeCategory={removeEditCategory}
+                addItem={addEditItem}
+                removeItem={removeEditItem}
+                step={editStep}
+                setStep={setEditStep}
+            />
+
+            {/* Add Item Modal */}
+            <ItemModal
                 isOpen={isItemModalOpen}
                 onClose={() => setIsItemModalOpen(false)}
                 onAddItem={handleAddItem}

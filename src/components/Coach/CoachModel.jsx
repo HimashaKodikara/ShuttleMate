@@ -3,6 +3,28 @@ import React from 'react';
 const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggleModal, addTrainingArea, removeTrainingArea, handleTrainingAreaChange, uploadError, setStep }) => {
     if (!isOpen) return null;
 
+    // Handle checkbox changes for training types
+    const handleTrainingTypeChange = (e) => {
+        const { name, checked } = e.target;
+        
+        // If checked, add the type to the array, otherwise remove it
+        if (checked) {
+            handleChange({
+                target: {
+                    name: 'TrainingType',
+                    value: [...(formData.TrainingType || []), name]
+                }
+            });
+        } else {
+            handleChange({
+                target: {
+                    name: 'TrainingType',
+                    value: (formData.TrainingType || []).filter(type => type !== name)
+                }
+            });
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
@@ -47,31 +69,49 @@ const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggle
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Training Type</label>
-                                <select
-                                    name="TrainingType"
-                                    value={formData.TrainingType}
-                                    onChange={handleChange}
-                                    required 
-                                    className="w-full px-3 py-2 border border-gray-300 rounded"
-                                >
-                                    <option value="">Select Training Type</option>
-                                    <option value="Beginner">Beginner</option>
-                                    <option value="Intermediate">Intermediate</option>
-                                    <option value="Professional">Professional</option>
-                                </select>
+                                <div className="flex flex-row gap-10">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            name="Beginner"
+                                            checked={(formData.TrainingType || []).includes("Beginner")}
+                                            onChange={handleTrainingTypeChange}
+                                            className="mr-2"
+                                        />
+                                        Beginner
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            name="Intermediate"
+                                            checked={(formData.TrainingType || []).includes("Intermediate")}
+                                            onChange={handleTrainingTypeChange}
+                                            className="mr-2"
+                                        />
+                                        Intermediate
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            name="Professional"
+                                            checked={(formData.TrainingType || []).includes("Professional")}
+                                            onChange={handleTrainingTypeChange}
+                                            className="mr-2"
+                                        />
+                                        Professional
+                                    </label>
+                                </div>
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Certifications</label>
                                 <textarea
-                                 type="text"
-                                 name="Certifications"
-                                 value={formData.Certifications}
-                                 onChange={handleChange}
-                                 required
-                                 className="w-full px-3 py-2 border border-gray-300 rounded rows=4">
-                                    
-                                </textarea>
-                                
+                                    name="Certifications"
+                                    value={formData.Certifications}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                    rows="4"
+                                ></textarea>
                             </div>
 
                             {uploadError && <p className="text-red-500">{uploadError}</p>}
@@ -116,7 +156,6 @@ const CoachModal = ({ isOpen, step, formData, handleChange, handleSubmit, toggle
                                 <button type="button" onClick={addTrainingArea} className="mb-4 text-blue-500">
                                     Add Training Area
                                 </button>
-                               
                             </div>
                             <div className="flex justify-between">
                                 <button type="button" onClick={() => setStep(1)} className="px-4 py-2 text-white bg-gray-500 rounded">

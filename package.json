@@ -10,11 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "axios": "^1.7.7",
+    "datatables.net": "^2.2.2",
+    "datatables.net-dt": "^2.2.2",
+    "datatables.net-react": "^1.0.0",
+    "date-fns": "^4.1.0",
     "firebase": "^10.13.2",
     "firebase-admin": "^13.1.0",
+    "jquery": "^3.7.1",
     "lucide-react": "^0.476.0",
     "react": "^18.3.1",
+    "react-data-table-component": "^7.0.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
     "react-table": "^7.8.0",

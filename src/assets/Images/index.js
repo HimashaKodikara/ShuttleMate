@@ -7,7 +7,8 @@ import court from './Court.jpg';
 import Shops from './Shops.jpg';
 import Bin from './icons/bin.png'
 import Edit from './icons/edit.png'
-import logo from './logo-png.png'
+import logo from './logo-png.png';
+import match from './match.jpg'
 
 const images = {
     Google,
@@ -19,7 +20,8 @@ const images = {
     Shops,
     Bin,
     Edit,
-    logo
+    logo,
+    match
   };
   
   export default images; 

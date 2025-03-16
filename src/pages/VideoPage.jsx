@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Swal from 'sweetalert2';
-import VideoTable from '../components/videoTable';
-import VideoUploadModal from '../components/videoModel';
-import EditVideoModal from '../components/EditVideoModal';
+import VideoTable from '../components/Video/videoTable';
+import VideoUploadModal from '../components/Video/videoModel';
+import EditVideoModal from '../components/Video/EditVideoModal';
 
 const VideoPage = () => {
     const [videos, setVideos] = useState([]);
@@ -84,9 +84,9 @@ const VideoPage = () => {
     };
 
     return (
-        <div className='h-screen bg-slate-950'>
+        <div className=''>
             <Navbar />
-            <h1 className='pt-3 text-4xl font-bold text-center text-white'>Videos</h1>
+            <h1 className='text-4xl font-bold text-center pt-9 '>Videos</h1>
 
             <div className="flex justify-end mb-6 mr-20">
                 <button

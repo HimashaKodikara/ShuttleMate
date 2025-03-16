@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase/firebaseconfig';
+import { storage } from '../../firebase/firebaseconfig';
 
 const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory }) => {
     const [itemDetails, setItemDetails] = useState({

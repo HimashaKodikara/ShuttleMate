@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Modal from '../components/CoachModel'; // Modal for adding new coach
-import EditCoachModal from '../components/EditCoachModel'; // Modal for editing coach
-import CoacherTable from '../components/CoachTable';
+import Modal from '../components/Coach/CoachModel'; // Modal for adding new coach
+import EditCoachModal from '../components/Coach/EditCoachModel'; // Modal for editing coach
+import CoacherTable from '../components/Coach/CoachTable';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase/firebaseconfig';
 import Swal from 'sweetalert2';
@@ -220,9 +220,9 @@ const Coachers = () => {
     
 
     return (
-        <div className="h-screen bg-slate-950">
+        <div className="">
             <Navbar />
-            <h1 className='pt-5 text-4xl font-bold text-center text-white'>Coachers</h1>
+            <h1 className='pt-10 text-4xl font-bold text-center '>Coachers</h1>
             <div className="flex justify-end mx-20">
                 <button onClick={toggleModal} className="px-4 py-2 mb-4 text-white rounded bg-amber-500 hover:bg-yellow-400">
                     Add New Coacher

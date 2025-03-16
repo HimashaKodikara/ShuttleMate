@@ -10,6 +10,9 @@ const Home = () => {
     { id: 2, title: 'Coachers', image: images.coach, link: '/Coachers' },
     { id: 3, title: 'Courts', image: images.court, link: '/court' },
     { id: 4, title: 'Shops', image: images.Shops, link: '/shop' },
+    {
+      id:5,title:'Match Time Line' , image:images.match,link:'/Matchtimeline'
+    }
   ];
 
   return (
@@ -20,11 +23,11 @@ const Home = () => {
       </div>
       
       <p className='mt-12 text-3xl text-center text-white '>Select a option</p>
-       <div className="grid grid-cols-1 gap-12 p-4 px-10 pt-14 sm:grid-cols-2 lg:grid-cols-4">
+       <div className="grid grid-cols-1 gap-5 p-4 px-5 pt-14 sm:grid-cols-10 lg:grid-cols-5">
       {cards.map(card => (
         <Link key={card.id} to={card.link}>
           <div className="overflow-hidden bg-white rounded-lg shadow-md cursor-pointer">
-            <img src={card.image} alt={card.title} className="object-cover w-full h-72" />
+            <img src={card.image} alt={card.title} className="object-cover w-full h-64" />
             <div className="p-4">
               <h3 className="text-lg font-bold text-center">{card.title}</h3>
             </div>
