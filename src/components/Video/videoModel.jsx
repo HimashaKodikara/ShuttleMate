@@ -7,6 +7,7 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
         videoName: '',
         videoCreator: '',
+        videoCreatorPhoto: null,
         videoFile: null,
         thumbnail: null,
     });
@@ -14,6 +15,7 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
     const [uploadError, setUploadError] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [thumbnailProgress, setThumbnailProgress] = useState(0);
+    const [creatorPhotoProgress, setCreatorPhotoProgress] = useState(0);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -38,6 +40,8 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
                         setUploadProgress(Math.round(progress));
                     } else if (filetype === 'thumbnail') {
                         setThumbnailProgress(Math.round(progress));
+                    } else if (filetype === 'creatorPhoto') {
+                        setCreatorPhotoProgress(Math.round(progress));
                     }
                 },
                 (error) => {
@@ -55,6 +59,8 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
                             setUploadProgress(100);
                         } else if (filetype === 'thumbnail') {
                             setThumbnailProgress(100);
+                        } else if (filetype === 'creatorPhoto') {
+                            setCreatorPhotoProgress(100);
                         }
 
                         resolve(downloadURL);
@@ -74,6 +80,7 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
         setUploadError('');
         setUploadProgress(0);
         setThumbnailProgress(0);
+        setCreatorPhotoProgress(0);
 
         try {
             // Validate if files are uploaded
@@ -85,17 +92,27 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
             // Upload video and thumbnail
             const videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
             const thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
-
+            
+           
+            const creatorPhotoURL = await uploadFile(formData.videoCreatorPhoto, 'creatorPhotos', 'creatorPhoto');
+            
             // Send POST request to the backend
             const response = await axios.post(`http://localhost:5000/api/videos/`, {
                 videoUrl: videoURL,
                 imgUrl: thumbnailURL,
                 videoName: formData.videoName,
                 videoCreator: formData.videoCreator,
+                videoCreatorPhoto: creatorPhotoURL,
             });
 
             console.log('Video saved:', response.data);
-            setFormData({ videoName: '', videoCreator: '', videoFile: null, thumbnail: null });
+            setFormData({ 
+                videoName: '', 
+                videoCreator: '', 
+                videoCreatorPhoto: null,
+                videoFile: null, 
+                thumbnail: null 
+            });
             onSuccess(); // Refresh video list after upload
             onClose(); // Close modal
         } catch (error) {
@@ -134,6 +151,34 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
                             className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-2 text-lg font-medium">Creator Photo</label>
+                        <input
+                            type="file"
+                            name="videoCreatorPhoto"
+                            accept="image/*"
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {uploading && formData.videoCreatorPhoto && (
+                            <div className="mt-2">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Uploading creator photo...
+                                    </span>
+                                    <span className="text-sm font-medium text-gray-700">
+                                        {creatorPhotoProgress}%
+                                    </span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                        className="bg-purple-600 h-2.5 rounded-full transition-all duration-300"
+                                        style={{ width: `${creatorPhotoProgress}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="mb-4">
                         <label className="block mb-2 text-lg font-medium">Upload Video</label>

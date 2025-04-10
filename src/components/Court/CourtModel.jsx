@@ -55,6 +55,29 @@ const CourtModal = ({
                                     className="w-full px-3 py-2 border border-gray-300 rounded"
                                 />
                             </div>
+                            <div className="mb-4">
+                                <label className="block mb-2 font-semibold">Price per Hour</label>
+                                <input
+                                    type="number"
+                                    name="Priceperhour"
+                                    value={formData.Priceperhour}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block mb-2 font-semibold">Opening Hours</label>
+                                <textarea type="text"
+                                    name="Openinghours"
+                                    value={formData.Openinghours}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Weekend 9:00 AM - 10:00 PM
+       Weekday 10:00 AM - 12:00 PM"
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded"></textarea>
+                                
+                            </div>
                             <div className="flex justify-between">
                                 <button
                                     type="button"

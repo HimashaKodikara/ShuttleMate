@@ -17,6 +17,7 @@ const Coachers = () => {
         Tel: '',
         TrainingType: '',
         Certifications: '',
+        Experiance:'',
         TrainingAreas: [{ CourtName: '', Area: '' }],
         CoachPhoto: null,
     });
@@ -93,6 +94,7 @@ const Coachers = () => {
             Tel: '',
             TrainingType: '',
             Certifications: '',
+            Experiance:'',
             TrainingAreas: [{ CourtName: '', Area: '' }],
             CoachPhoto: null,
         });
@@ -148,6 +150,7 @@ const Coachers = () => {
                                     fetchCoachers();
                                     toggleModal();
                                     setUploading(false);
+                                    console.log(updatedCoacher);
                                     Swal.fire({
                                         title: 'Success!',
                                         text: 'Coacher added successfully.',

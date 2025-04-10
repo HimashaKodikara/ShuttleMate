@@ -7,6 +7,7 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
     const [formData, setFormData] = useState({
         videoName: '',
         videoCreator: '',
+        videoCreatorPhoto: null,
         videoFile: null,
         thumbnail: null,
     });
@@ -14,8 +15,10 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
     const [uploadError, setUploadError] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [thumbnailProgress, setThumbnailProgress] = useState(0);
+    const [creatorPhotoProgress, setCreatorPhotoProgress] = useState(0);
     const [changingVideo, setChangingVideo] = useState(false);
     const [changingThumbnail, setChangingThumbnail] = useState(false);
+    const [changingCreatorPhoto, setChangingCreatorPhoto] = useState(false);
 
     // Initialize form data when videoData changes
     useEffect(() => {
@@ -25,8 +28,10 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                 videoCreator: videoData.videoCreator || '',
                 videoFile: null,
                 thumbnail: null,
+                videoCreatorPhoto: null,
                 currentVideoUrl: videoData.videoUrl || '',
-                currentImgUrl: videoData.imgUrl || ''
+                currentImgUrl: videoData.imgUrl || '',
+                currentCreatorPhotoUrl: videoData.videoCreatorPhotoUrl || ''
             });
         }
     }, [videoData]);
@@ -40,6 +45,10 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
         
         if (name === 'thumbnail' && files) {
             setChangingThumbnail(true);
+        }
+        
+        if (name === 'videoCreatorPhoto' && files) {
+            setChangingCreatorPhoto(true);
         }
         
         setFormData((prev) => ({
@@ -63,6 +72,8 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                         setUploadProgress(Math.round(progress));
                     } else if (filetype === 'thumbnail') {
                         setThumbnailProgress(Math.round(progress));
+                    } else if (filetype === 'creatorPhoto') {
+                        setCreatorPhotoProgress(Math.round(progress));
                     }
                 },
                 (error) => {
@@ -80,6 +91,8 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                             setUploadProgress(100);
                         } else if (filetype === 'thumbnail') {
                             setThumbnailProgress(100);
+                        } else if (filetype === 'creatorPhoto') {
+                            setCreatorPhotoProgress(100);
                         }
 
                         resolve(downloadURL);
@@ -100,10 +113,12 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
         
         if (changingVideo) setUploadProgress(0);
         if (changingThumbnail) setThumbnailProgress(0);
+        if (changingCreatorPhoto) setCreatorPhotoProgress(0);
 
         try {
             let videoURL = formData.currentVideoUrl;
             let thumbnailURL = formData.currentImgUrl;
+            let creatorPhotoURL = formData.currentCreatorPhotoUrl;
 
             // Only upload new video if provided
             if (changingVideo && formData.videoFile) {
@@ -114,6 +129,11 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
             if (changingThumbnail && formData.thumbnail) {
                 thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
             }
+            
+            // Only upload new creator photo if provided
+            if (changingCreatorPhoto && formData.videoCreatorPhoto) {
+                creatorPhotoURL = await uploadFile(formData.videoCreatorPhoto, 'creatorPhotos', 'creatorPhoto');
+            }
 
             // Send PUT request to update the video
             const response = await axios.put(`http://localhost:5000/api/videos/video/${videoData._id}`, {
@@ -121,6 +141,7 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                 imgUrl: thumbnailURL,
                 videoName: formData.videoName,
                 videoCreator: formData.videoCreator,
+                videoCreatorPhotoUrl: creatorPhotoURL,
             });
 
             onSuccess(); // Refresh video list after update
@@ -132,6 +153,7 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
             setUploading(false);
             setChangingVideo(false);
             setChangingThumbnail(false);
+            setChangingCreatorPhoto(false);
         }
     };
 
@@ -163,6 +185,46 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                             className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
+                    </div>
+                    
+                    <div className="mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="text-lg font-medium">Creator Photo</label>
+                            {formData.videoCreatorPhoto && (
+                                <img 
+                                    src={formData.videoCreatorPhoto} 
+                                    alt="Creator photo" 
+                                    className="object-cover w-12 h-12 ml-2 border rounded-full"
+                                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Photo'; }}
+                                />
+                            )}
+                        </div>
+                        <label className="block mb-2 text-sm text-gray-600">Upload new creator photo (optional)</label>
+                        <input
+                            type="file"
+                            name="videoCreatorPhoto"
+                            accept="image/*"
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {uploading && changingCreatorPhoto && (
+                            <div className="mt-2">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Uploading new creator photo...
+                                    </span>
+                                    <span className="text-sm font-medium text-gray-700">
+                                        {creatorPhotoProgress}%
+                                    </span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                        className="bg-purple-600 h-2.5 rounded-full transition-all duration-300"
+                                        style={{ width: `${creatorPhotoProgress}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     
                     <div className="mb-4">

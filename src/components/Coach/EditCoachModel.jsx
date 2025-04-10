@@ -61,6 +61,7 @@ const EditCoachModal = ({
                                     className="w-full px-3 py-2 border border-gray-300 rounded"
                                 />
                             </div>
+                            <div className="flex flex-row gap-2">
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Tel</label>
                                 <input
@@ -71,6 +72,18 @@ const EditCoachModal = ({
                                     
                                     className="w-full px-3 py-2 border border-gray-300 rounded"
                                 />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block mb-2 font-semibold">Experiance</label>
+                                <input
+                                    type="number"
+                                    name="Experiance"
+                                    value={formData.Experiance}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                />
+                            </div>
                             </div>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Training Type</label>
