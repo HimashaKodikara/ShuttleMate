@@ -10,15 +10,16 @@ import Navbar from '../components/Navbar';
 
 const Coachers = () => {
     const [coachers, setCoachers] = useState([]);
+    const [courts, setCourts] = useState([]); // State to store available courts
     const [isModalOpen, setIsModalOpen] = useState(false); // For Add Coach Modal
     const [isEditModalOpen, setIsEditModalOpen] = useState(false); // For Edit Coach Modal
     const [formData, setFormData] = useState({
         CoachName: '',
         Tel: '',
-        TrainingType: '',
+        TrainingType: [],
         Certifications: '',
-        Experiance:'',
-        TrainingAreas: [{ CourtName: '', Area: '' }],
+        Experiance: '',
+        Courts: [],
         CoachPhoto: null,
     });
     const [uploading, setUploading] = useState(false);
@@ -29,16 +30,36 @@ const Coachers = () => {
     const fetchCoachers = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/coachers');
-            setCoachers(response.data.coachers);
+            setCoachers(response.data.coachers || response.data); // Handle both formats
         } catch (error) {
             console.error("Error fetching coachers:", error);
+        }
+    };
+
+    const fetchCourts = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/courts');
+            // Check the response format and handle both possibilities
+            if (response.data && response.data.courts) {
+                setCourts(response.data.courts);
+            } else if (Array.isArray(response.data)) {
+                setCourts(response.data);
+            } else {
+                console.error("Unexpected courts data format:", response.data);
+                setCourts([]);
+            }
+            console.log("Fetched courts:", response.data);
+        } catch (error) {
+            console.error("Error fetching courts:", error);
         }
     };
 
     const fetchCoacherById = async (id) => {
         try {
             const response = await axios.get(`http://localhost:5000/api/Coachers/${id}`);
-            setFormData(response.data.coacher);
+            // Handle potential different response formats
+            const coacherData = response.data.coacher || response.data;
+            setFormData(coacherData);
             setStep(2);
             setEditingCoachId(id);
             setIsEditModalOpen(true); // Open Edit Coach Modal
@@ -49,39 +70,45 @@ const Coachers = () => {
 
     useEffect(() => {
         fetchCoachers();
+        fetchCourts(); // Fetch courts when component mounts
     }, []);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
-        setFormData((prev) => ({
+        
+        if (files) {
+            // Handle file upload
+            setFormData(prev => ({
+                ...prev,
+                [name]: files[0]
+            }));
+        } else {
+            // Handle other inputs
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+
+    // Separate handler for TrainingType specifically
+    const handleTrainingTypeChange = (e) => {
+        const { name, checked } = e.target;
+        const updatedTypes = checked
+            ? [...(formData.TrainingType || []), name]
+            : (formData.TrainingType || []).filter(type => type !== name);
+
+        setFormData(prev => ({
             ...prev,
-            [name]: files ? files[0] : value,
+            TrainingType: updatedTypes
         }));
     };
 
-    const handleTrainingAreaChange = (index, e) => {
-        const { name, value } = e.target;
-        const updatedAreas = [...formData.TrainingAreas];
-        updatedAreas[index][name] = value;
-        setFormData((prev) => ({
+    const handleCourtSelection = (e) => {
+        const selectedCourts = Array.from(e.target.selectedOptions, option => option.value);
+        setFormData(prev => ({
             ...prev,
-            TrainingAreas: updatedAreas,
-        }));
-    };
-
-    const addTrainingArea = () => {
-        setFormData((prev) => ({
-            ...prev,
-            TrainingAreas: [...prev.TrainingAreas, { CourtName: '', Area: '' }],
-        }));
-    };
-
-    const removeTrainingArea = (index) => {
-        const updatedAreas = [...formData.TrainingAreas];
-        updatedAreas.splice(index, 1);
-        setFormData((prev) => ({
-            ...prev,
-            TrainingAreas: updatedAreas,
+            Courts: selectedCourts
         }));
     };
 
@@ -92,10 +119,10 @@ const Coachers = () => {
         setFormData({
             CoachName: '',
             Tel: '',
-            TrainingType: '',
+            TrainingType: [],
             Certifications: '',
-            Experiance:'',
-            TrainingAreas: [{ CourtName: '', Area: '' }],
+            Experiance: '',
+            Courts: [],
             CoachPhoto: null,
         });
     };
@@ -113,59 +140,69 @@ const Coachers = () => {
             setUploading(true);
             setUploadError('');
 
-            const storageRef = ref(storage, `coaches/${formData.CoachPhoto.name}`);
-            const uploadTask = uploadBytesResumable(storageRef, formData.CoachPhoto);
+            // Check if CoachPhoto is already a URL string or a File object
+            if (typeof formData.CoachPhoto === 'string') {
+                // It's already a URL, so no need to upload again
+                submitCoachData(formData);
+            } else {
+                // It's a File, need to upload
+                const storageRef = ref(storage, `coaches/${formData.CoachPhoto.name}`);
+                const uploadTask = uploadBytesResumable(storageRef, formData.CoachPhoto);
 
-            uploadTask.on(
-                'state_changed',
-                (snapshot) => {},
-                (error) => {
-                    setUploadError('Failed to upload the coach photo.');
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {},
+                    (error) => {
+                        setUploadError('Failed to upload the coach photo.');
+                        setUploading(false);
+                    },
+                    () => {
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            const updatedCoacher = { ...formData, CoachPhoto: downloadURL };
+                            submitCoachData(updatedCoacher);
+                        });
+                    }
+                );
+            }
+        }
+    };
+
+    const submitCoachData = (coachData) => {
+        if (editingCoachId) {
+            axios.put(`http://localhost:5000/api/Coachers/${editingCoachId}`, coachData)
+                .then(() => {
+                    fetchCoachers();
+                    setIsEditModalOpen(false);
                     setUploading(false);
-                },
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        const updatedCoacher = { ...formData, CoachPhoto: downloadURL };
-
-                        if (editingCoachId) {
-                            axios.put(`http://localhost:5000/api/Coachers/${editingCoachId}`, updatedCoacher)
-                                .then(() => {
-                                    fetchCoachers();
-                                    toggleModal();
-                                    setUploading(false);
-                                    Swal.fire({
-                                        title: 'Success!',
-                                        text: 'Coacher updated successfully.',
-                                        icon: 'success',
-                                        confirmButtonText: 'Okay',
-                                    });
-                                })
-                                .catch((error) => {
-                                    console.error('Error updating coacher:', error);
-                                    setUploading(false);
-                                });
-                        } else {
-                            axios.post('http://localhost:5000/api/coachers', updatedCoacher)
-                                .then(() => {
-                                    fetchCoachers();
-                                    toggleModal();
-                                    setUploading(false);
-                                    console.log(updatedCoacher);
-                                    Swal.fire({
-                                        title: 'Success!',
-                                        text: 'Coacher added successfully.',
-                                        icon: 'success',
-                                        confirmButtonText: 'Okay',
-                                    });
-                                })
-                                .catch((error) => {
-                                    console.error('Error adding coacher:', error);
-                                    setUploading(false);
-                                });
-                        }
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Coacher updated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'Okay',
                     });
-                }
-            );
+                })
+                .catch((error) => {
+                    console.error('Error updating coacher:', error);
+                    setUploading(false);
+                });
+        } else {
+            axios.post('http://localhost:5000/api/coachers', coachData)
+                .then(() => {
+                    fetchCoachers();
+                    toggleModal();
+                    setUploading(false);
+                    console.log(coachData);
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Coacher added successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'Okay',
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error adding coacher:', error);
+                    setUploading(false);
+                });
         }
     };
 
@@ -199,11 +236,10 @@ const Coachers = () => {
             });
         }
     };
+    
     const handleUpdateCoacher = (updatedCoacher) => {
-        // Here, handle the update logic, for example making an API call to update the coacher
         axios.put(`http://localhost:5000/api/Coachers/${updatedCoacher._id}`, updatedCoacher)
             .then((response) => {
-                // After update, you can fetch the coachers again or update the state manually
                 fetchCoachers();
                 Swal.fire({
                     title: "Updated!",
@@ -221,7 +257,6 @@ const Coachers = () => {
             });
     };
     
-
     return (
         <div className="">
             <Navbar />
@@ -234,7 +269,7 @@ const Coachers = () => {
             <CoacherTable
                 coachers={coachers}
                 onDelete={handleDeleteCoacher}
-                onEdit={fetchCoacherById} // This is the function to edit the coacher
+                onEdit={fetchCoacherById}
                 onUpdate={handleUpdateCoacher} 
             />
             <Modal
@@ -244,11 +279,11 @@ const Coachers = () => {
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 toggleModal={toggleModal}
-                addTrainingArea={addTrainingArea}
-                removeTrainingArea={removeTrainingArea}
-                handleTrainingAreaChange={handleTrainingAreaChange}
                 uploadError={uploadError}
-                setStep={setStep} // Pass setStep to the modal for controlling form steps
+                setStep={setStep}
+                courts={courts}
+                handleCourtSelection={handleCourtSelection}
+                handleTrainingTypeChange={handleTrainingTypeChange}
             />
             <EditCoachModal
                 isOpen={isEditModalOpen}
@@ -256,7 +291,10 @@ const Coachers = () => {
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 toggleModal={() => setIsEditModalOpen(false)}
-                setStep={setStep} // Pass setStep to Edit Modal for handling steps
+                setStep={setStep}
+                courts={courts}
+                handleCourtSelection={handleCourtSelection}
+                handleTrainingTypeChange={handleTrainingTypeChange}
             />
         </div>
     );
