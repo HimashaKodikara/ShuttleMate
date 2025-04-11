@@ -5,14 +5,14 @@ const ShopModal = ({
     formData,
     handleChange,
     handleCategoryChange,
-    handleItemChange,
+    handleBrandChange,
     handleSubmit,
     toggleModal,
     uploadError,
     addCategory,
     removeCategory,
-    addItem,
-    removeItem,
+    addBrand,
+    removeBrand,
     step,
     setStep,
 }) => {
@@ -24,6 +24,7 @@ const ShopModal = ({
                 <h2 className="mb-4 text-2xl font-bold text-center">Add New Shop</h2>
                 <form onSubmit={handleSubmit}>
                     {step === 1 ? (
+                        // Step 1: Basic Shop Info
                         <>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Shop Name</label>
@@ -85,9 +86,10 @@ const ShopModal = ({
                                 <button type="button" onClick={() => setStep(2)} className="px-4 py-2 text-white bg-blue-500 rounded">Next</button>
                             </div>
                         </>
-                    ) : (
+                    ) : step === 2 ? (
+                        // Step 2: Categories
                         <>
-                            <h3 className="mb-2 font-semibold">Shop Categories & Items</h3>
+                            <h3 className="mb-2 font-semibold">Shop Categories</h3>
                             <div className="p-2 mb-4 overflow-y-auto border border-gray-300 rounded max-h-96">
                                 {formData.categories.map((category, catIndex) => (
                                     <div key={catIndex} className="p-2 mb-4 border rounded">
@@ -101,16 +103,55 @@ const ShopModal = ({
                                             className="w-full px-3 py-2 border border-gray-300 rounded"
                                         />
                                         <button type="button" onClick={() => removeCategory(catIndex)} className="mt-2 text-red-500">Remove Category</button>
-                                        
-                                        
-                                       
                                     </div>
                                 ))}
                                 <button type="button" onClick={addCategory} className="mb-4 text-blue-500">Add Category</button>
                             </div>
-                            {uploadError && <p className="text-red-500">{uploadError}</p>}
                             <div className="flex justify-between">
                                 <button type="button" onClick={() => setStep(1)} className="px-4 py-2 text-white bg-gray-500 rounded">Back</button>
+                                <button type="button" onClick={() => setStep(3)} className="px-4 py-2 text-white bg-blue-500 rounded">Next</button>
+                            </div>
+                        </>
+                    ) : (
+                        // Step 3: Brands
+                        <>
+                            <h3 className="mb-2 font-semibold">Shop Brands</h3>
+                            <div className="p-2 mb-4 overflow-y-auto rounded max-h-96">
+                                {formData.brands && formData.brands.map((brand, brandIndex) => (
+                                    <div key={brandIndex} className="p-2 mb-4 border rounded">
+                                        <div className="mb-4">
+                                            <label className="block mb-2 font-semibold">Brand Name</label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={brand.name}
+                                                onChange={(e) => handleBrandChange(brandIndex, e)}
+                                                required
+                                                className="w-full px-3 py-2 border border-gray-300 rounded"
+                                            />
+                                        </div>
+                                        <div className="mb-4">
+                                            <label className="block mb-2 font-semibold">Brand Image</label>
+                                            <input
+                                                type="file"
+                                                name="images"
+                                                onChange={(e) => handleBrandChange(brandIndex, e)}
+                                                accept="image/*"
+                                                required
+                                                className="w-full px-3 py-2 border border-gray-300 rounded"
+                                            />
+                                            <div>                                        <button type="button" onClick={() => removeBrand(brandIndex)} className="mt-2 text-red-500">Remove Brand</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                ))}
+                                 <button type="button" onClick={addBrand} className="px-8 py-2 text-white bg-blue-500 border rounded ">Add Brand</button>
+                            </div>
+                           
+                            {uploadError && <p className="text-red-500">{uploadError}</p>}
+                            <div className="flex justify-between">
+                                <button type="button" onClick={() => setStep(2)} className="px-4 py-2 text-white bg-gray-500 rounded">Back</button>
                                 <button type="submit" className="px-4 py-2 text-white bg-blue-500 rounded">Submit</button>
                             </div>
                         </>

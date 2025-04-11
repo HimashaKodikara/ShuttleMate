@@ -22,6 +22,7 @@ const Shop = () => {
         website: '',
         categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
         ShopPhoto: null,
+        brands: [],
     });
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
@@ -35,7 +36,8 @@ const Shop = () => {
         Tel: '',
         website: '',
         ShopPhotoUrl: '',
-        categories: []
+        categories: [],
+        brands: [],
     });
     const [editStep, setEditStep] = useState(1);
 
@@ -153,79 +155,211 @@ const Shop = () => {
         }
     };
 
+    const addBrand = () => {
+        setFormData((prev) => ({
+            ...prev,
+            brands: [...prev.brands, { name: '', images: null }],
+        }));
+    };
+    
+    const removeBrand = (index) => {
+        const updatedBrands = [...formData.brands];
+        updatedBrands.splice(index, 1);
+        setFormData((prev) => ({
+            ...prev,
+            brands: updatedBrands,
+        }));
+    };
+    
+    const handleBrandChange = (index, e) => {
+        const { name, value, files } = e.target;
+        const updatedBrands = [...formData.brands];
+        
+        if (name === 'images' && files && files[0]) {
+            updatedBrands[index][name] = files[0];
+        } else {
+            updatedBrands[index][name] = value;
+        }
+        
+        setFormData((prev) => ({
+            ...prev,
+            brands: updatedBrands,
+        }));
+    };
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     if (step === 1) {
+    //         setStep(2);
+    //     } else {
+    //         if (!formData.ShopPhoto) {
+    //             setUploadError('Please upload a shop photo.');
+    //             return;
+    //         }
+
+    //         setUploading(true);
+    //         setUploadError('');
+
+    //         const storageRef = ref(storage, `shops/${formData.ShopPhoto.name}`);
+    //         const uploadTask = uploadBytesResumable(storageRef, formData.ShopPhoto);
+
+    //         uploadTask.on(
+    //             'state_changed',
+    //             () => { },
+    //             (error) => {
+    //                 setUploadError('Failed to upload the shop photo.');
+    //                 setUploading(false);
+    //             },
+    //             () => {
+    //                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+    //                     // Fix: Remove the categoryId reference that doesn't exist
+    //                     const categoriesWithFixedItems = formData.categories.map(category => ({
+    //                         ...category,
+    //                         items: category.items.map(item => ({
+    //                             itemphoto: item.itemphoto,
+    //                             name: item.name,
+    //                             price: item.price,
+    //                             color: item.color
+    //                         }))
+    //                     }));
+
+    //                     const newShop = {
+    //                         ...formData,
+    //                         ShopPhoto: downloadURL,
+    //                         categories: categoriesWithFixedItems
+    //                     };
+
+    //                     axios.post('http://localhost:5000/api/shops', newShop)
+    //                         .then(() => {
+    //                             fetchShops();
+    //                             setFormData({
+    //                                 ShopName: '',
+    //                                 place: '',
+    //                                 Tel: '',
+    //                                 website: '',
+    //                                 categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
+    //                                 ShopPhoto: null,
+    //                             });
+    //                             setIsModalOpen(false);
+    //                             setUploading(false);
+
+    //                             Swal.fire({
+    //                                 title: 'Success!',
+    //                                 text: 'Shop added successfully.',
+    //                                 icon: 'success',
+    //                                 confirmButtonText: 'Okay'
+    //                             });
+    //                         })
+    //                         .catch((error) => {
+    //                             console.error('Error adding shop:', error);
+    //                             setUploading(false);
+    //                         });
+    //                 });
+    //             }
+    //         );
+    //     }
+    // };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (step === 1) {
             setStep(2);
+        } else if (step === 2) {
+            setStep(3); // Add a step for brands
         } else {
             if (!formData.ShopPhoto) {
                 setUploadError('Please upload a shop photo.');
                 return;
             }
-
+    
             setUploading(true);
             setUploadError('');
-
-            const storageRef = ref(storage, `shops/${formData.ShopPhoto.name}`);
-            const uploadTask = uploadBytesResumable(storageRef, formData.ShopPhoto);
-
-            uploadTask.on(
-                'state_changed',
-                () => { },
-                (error) => {
-                    setUploadError('Failed to upload the shop photo.');
-                    setUploading(false);
-                },
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        // Fix: Remove the categoryId reference that doesn't exist
-                        const categoriesWithFixedItems = formData.categories.map(category => ({
-                            ...category,
-                            items: category.items.map(item => ({
-                                itemphoto: item.itemphoto,
-                                name: item.name,
-                                price: item.price,
-                                color: item.color
-                            }))
-                        }));
-
-                        const newShop = {
-                            ...formData,
-                            ShopPhoto: downloadURL,
-                            categories: categoriesWithFixedItems
-                        };
-
-                        axios.post('http://localhost:5000/api/shops', newShop)
-                            .then(() => {
-                                fetchShops();
-                                setFormData({
-                                    ShopName: '',
-                                    place: '',
-                                    Tel: '',
-                                    website: '',
-                                    categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
-                                    ShopPhoto: null,
-                                });
-                                setIsModalOpen(false);
-                                setUploading(false);
-
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'Shop added successfully.',
-                                    icon: 'success',
-                                    confirmButtonText: 'Okay'
-                                });
-                            })
-                            .catch((error) => {
-                                console.error('Error adding shop:', error);
-                                setUploading(false);
+    
+            try {
+                // Upload shop photo
+                const shopPhotoRef = ref(storage, `shops/${formData.ShopPhoto.name}`);
+                const shopPhotoUpload = uploadBytesResumable(shopPhotoRef, formData.ShopPhoto);
+                
+                const shopPhotoUrl = await new Promise((resolve, reject) => {
+                    shopPhotoUpload.on(
+                        'state_changed',
+                        () => {},
+                        reject,
+                        () => resolve(getDownloadURL(shopPhotoUpload.snapshot.ref))
+                    );
+                });
+    
+                // Upload brand images and gather their URLs
+                const brandsWithImages = await Promise.all(
+                    formData.brands.map(async (brand) => {
+                        if (brand.images instanceof File) {
+                            const brandImageRef = ref(storage, `brands/${brand.images.name}`);
+                            const brandUpload = uploadBytesResumable(brandImageRef, brand.images);
+                            
+                            const imageUrl = await new Promise((resolve, reject) => {
+                                brandUpload.on(
+                                    'state_changed',
+                                    () => {},
+                                    reject,
+                                    () => resolve(getDownloadURL(brandUpload.snapshot.ref))
+                                );
                             });
-                    });
-                }
-            );
+                            
+                            return {
+                                name: brand.name,
+                                images: imageUrl
+                            };
+                        }
+                        return brand;
+                    })
+                );
+    
+                // Fix: Remove the categoryId reference that doesn't exist
+                const categoriesWithFixedItems = formData.categories.map(category => ({
+                    ...category,
+                    items: category.items.map(item => ({
+                        itemphoto: item.itemphoto,
+                        name: item.name,
+                        price: item.price,
+                        color: item.color
+                    }))
+                }));
+    
+                const newShop = {
+                    ...formData,
+                    ShopPhoto: shopPhotoUrl,
+                    categories: categoriesWithFixedItems,
+                    brands: brandsWithImages
+                };
+    
+                await axios.post('http://localhost:5000/api/shops', newShop);
+                fetchShops();
+                setFormData({
+                    ShopName: '',
+                    place: '',
+                    Tel: '',
+                    website: '',
+                    categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
+                    ShopPhoto: null,
+                    brands: [],
+                });
+                setIsModalOpen(false);
+                setUploading(false);
+    
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Shop added successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            } catch (error) {
+                console.error('Error adding shop:', error);
+                setUploading(false);
+                setUploadError('Failed to upload shop data.');
+            }
         }
     };
-
     const handleDeleteShop = async (id) => {
         // Check if shop exists
         if (!shops.find(shop => shop._id === id)) {
@@ -507,6 +641,9 @@ const Shop = () => {
                 handleItemChange={handleItemChange}
                 uploadError={uploadError}
                 setStep={setStep}
+                addBrand={addBrand}
+                removeBrand={removeBrand}
+                handleBrandChange={handleBrandChange}
             />
 
             {/* Edit Shop Modal */}
