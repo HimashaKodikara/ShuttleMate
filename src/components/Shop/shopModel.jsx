@@ -102,10 +102,31 @@ const ShopModal = ({
                                             required
                                             className="w-full px-3 py-2 border border-gray-300 rounded"
                                         />
-                                        <button type="button" onClick={() => removeCategory(catIndex)} className="mt-2 text-red-500">Remove Category</button>
+                                        <label className="block mt-3 mb-2 font-semibold">Price Range</label>
+                                         <input
+                                            type="text"
+                                            name="priceRange"
+                                            value={category.priceRange || ''}
+                                            onChange={(e) => handleCategoryChange(catIndex, e)}
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded"
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => removeCategory(catIndex)} 
+                                            className="px-2 py-1 mt-3 text-sm text-red-500 border border-red-300 rounded hover:bg-red-50"
+                                        >
+                                            Remove Category
+                                        </button>
                                     </div>
                                 ))}
-                                <button type="button" onClick={addCategory} className="mb-4 text-blue-500">Add Category</button>
+                                <button 
+                                    type="button" 
+                                    onClick={addCategory} 
+                                    className="px-4 py-2 text-white bg-blue-500 rounded"
+                                >
+                                    Add Category
+                                </button>
                             </div>
                             <div className="flex justify-between">
                                 <button type="button" onClick={() => setStep(1)} className="px-4 py-2 text-white bg-gray-500 rounded">Back</button>
@@ -140,13 +161,23 @@ const ShopModal = ({
                                                 required
                                                 className="w-full px-3 py-2 border border-gray-300 rounded"
                                             />
-                                            <div>                                        <button type="button" onClick={() => removeBrand(brandIndex)} className="mt-2 text-red-500">Remove Brand</button>
-                                            </div>
-
+                                            <button 
+                                                type="button" 
+                                                onClick={() => removeBrand(brandIndex)} 
+                                                className="px-2 py-1 mt-3 text-sm text-red-500 border border-red-300 rounded hover:bg-red-50"
+                                            >
+                                                Remove Brand
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
-                                 <button type="button" onClick={addBrand} className="px-8 py-2 text-white bg-blue-500 border rounded ">Add Brand</button>
+                                <button 
+                                    type="button" 
+                                    onClick={addBrand} 
+                                    className="px-4 py-2 text-white bg-blue-500 rounded"
+                                >
+                                    Add Brand
+                                </button>
                             </div>
                            
                             {uploadError && <p className="text-red-500">{uploadError}</p>}

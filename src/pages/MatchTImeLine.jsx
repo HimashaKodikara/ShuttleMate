@@ -110,7 +110,7 @@ const MatchTimeLine = () => {
       if (currentMatch?._id) {
         // Update existing match
         response = await axios.put(
-          `http://localhost:5000/api/matches/${currentMatch._id}`,
+          `http://localhost:5000/api/matches/match/${currentMatch._id}`,
           matchDataToSave
         );
         successMessage = "Match updated successfully!";

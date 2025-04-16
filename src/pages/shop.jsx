@@ -20,7 +20,7 @@ const Shop = () => {
         place: '',
         Tel: '',
         website: '',
-        categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
+        categories: [{ categoryName: '', priceRange: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
         ShopPhoto: null,
         brands: [],
     });
@@ -62,11 +62,12 @@ const Shop = () => {
         }));
     };
 
+    // Updated handleCategoryChange to handle both categoryName and priceRange
     const handleCategoryChange = (index, e) => {
-        const { value } = e.target;
+        const { name, value } = e.target;
         setFormData((prev) => {
             const updatedCategories = prev.categories.map((category, i) =>
-                i === index ? { ...category, categoryName: value } : category
+                i === index ? { ...category, [name]: value } : category
             );
             return { ...prev, categories: updatedCategories };
         });
@@ -85,7 +86,7 @@ const Shop = () => {
     const addCategory = () => {
         setFormData((prev) => ({
             ...prev,
-            categories: [...prev.categories, { categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
+            categories: [...prev.categories, { categoryName: '', priceRange: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
         }));
     };
 
@@ -187,80 +188,6 @@ const Shop = () => {
         }));
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     if (step === 1) {
-    //         setStep(2);
-    //     } else {
-    //         if (!formData.ShopPhoto) {
-    //             setUploadError('Please upload a shop photo.');
-    //             return;
-    //         }
-
-    //         setUploading(true);
-    //         setUploadError('');
-
-    //         const storageRef = ref(storage, `shops/${formData.ShopPhoto.name}`);
-    //         const uploadTask = uploadBytesResumable(storageRef, formData.ShopPhoto);
-
-    //         uploadTask.on(
-    //             'state_changed',
-    //             () => { },
-    //             (error) => {
-    //                 setUploadError('Failed to upload the shop photo.');
-    //                 setUploading(false);
-    //             },
-    //             () => {
-    //                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-    //                     // Fix: Remove the categoryId reference that doesn't exist
-    //                     const categoriesWithFixedItems = formData.categories.map(category => ({
-    //                         ...category,
-    //                         items: category.items.map(item => ({
-    //                             itemphoto: item.itemphoto,
-    //                             name: item.name,
-    //                             price: item.price,
-    //                             color: item.color
-    //                         }))
-    //                     }));
-
-    //                     const newShop = {
-    //                         ...formData,
-    //                         ShopPhoto: downloadURL,
-    //                         categories: categoriesWithFixedItems
-    //                     };
-
-    //                     axios.post('http://localhost:5000/api/shops', newShop)
-    //                         .then(() => {
-    //                             fetchShops();
-    //                             setFormData({
-    //                                 ShopName: '',
-    //                                 place: '',
-    //                                 Tel: '',
-    //                                 website: '',
-    //                                 categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
-    //                                 ShopPhoto: null,
-    //                             });
-    //                             setIsModalOpen(false);
-    //                             setUploading(false);
-
-    //                             Swal.fire({
-    //                                 title: 'Success!',
-    //                                 text: 'Shop added successfully.',
-    //                                 icon: 'success',
-    //                                 confirmButtonText: 'Okay'
-    //                             });
-    //                         })
-    //                         .catch((error) => {
-    //                             console.error('Error adding shop:', error);
-    //                             setUploading(false);
-    //                         });
-    //                 });
-    //             }
-    //         );
-    //     }
-    // };
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (step === 1) {
@@ -315,9 +242,10 @@ const Shop = () => {
                     })
                 );
     
-                // Fix: Remove the categoryId reference that doesn't exist
+                // Include priceRange in the categories
                 const categoriesWithFixedItems = formData.categories.map(category => ({
-                    ...category,
+                    categoryName: category.categoryName,
+                    priceRange: category.priceRange,
                     items: category.items.map(item => ({
                         itemphoto: item.itemphoto,
                         name: item.name,
@@ -340,7 +268,7 @@ const Shop = () => {
                     place: '',
                     Tel: '',
                     website: '',
-                    categories: [{ categoryName: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
+                    categories: [{ categoryName: '', priceRange: '', items: [{ itemphoto: '', name: '', price: '', color: '' }] }],
                     ShopPhoto: null,
                     brands: [],
                 });
@@ -360,6 +288,7 @@ const Shop = () => {
             }
         }
     };
+    
     const handleDeleteShop = async (id) => {
         // Check if shop exists
         if (!shops.find(shop => shop._id === id)) {
@@ -413,8 +342,10 @@ const Shop = () => {
             ShopPhotoUrl: shop.ShopPhoto,
             categories: shop.categories?.map(cat => ({
                 ...cat,
+                priceRange: cat.priceRange || '', // Ensure priceRange is initialized
                 items: cat.items || []
-            })) || []
+            })) || [],
+            brands: shop.brands || []
         });
         setIsEditModalOpen(true);
         setEditStep(1);
@@ -429,7 +360,8 @@ const Shop = () => {
                 Tel: '',
                 website: '',
                 ShopPhotoUrl: '',
-                categories: []
+                categories: [],
+                brands: []
             });
             setUploadError('');
         }
@@ -457,6 +389,7 @@ const Shop = () => {
         }
     };
 
+    // Updated to handle all fields including priceRange
     const handleEditCategoryChange = (categoryIndex, e) => {
         const { name, value } = e.target;
         const updatedCategories = [...editFormData.categories];
@@ -488,7 +421,7 @@ const Shop = () => {
     const addEditCategory = () => {
         setEditFormData(prev => ({
             ...prev,
-            categories: [...prev.categories, { categoryName: '', items: [] }]
+            categories: [...prev.categories, { categoryName: '', priceRange: '', items: [] }]
         }));
     };
 
@@ -506,7 +439,7 @@ const Shop = () => {
         if (!updatedCategories[categoryIndex].items) {
             updatedCategories[categoryIndex].items = [];
         }
-        updatedCategories[categoryIndex].items.push({ name: '' });
+        updatedCategories[categoryIndex].items.push({ name: '', price: '', color: '' });
         setEditFormData(prev => ({
             ...prev,
             categories: updatedCategories
@@ -522,10 +455,83 @@ const Shop = () => {
         }));
     };
 
+    // Updated to include brand handling
+    const handleEditBrandChange = (brandIndex, e) => {
+        const { name, value, files } = e.target;
+        const updatedBrands = [...editFormData.brands];
+        
+        if (name === 'images' && files && files[0]) {
+            // Handle file upload preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                updatedBrands[brandIndex] = {
+                    ...updatedBrands[brandIndex],
+                    imagePreview: reader.result,
+                    images: files[0] // store the file for upload
+                };
+                setEditFormData(prev => ({
+                    ...prev,
+                    brands: updatedBrands
+                }));
+            };
+            reader.readAsDataURL(files[0]);
+        } else {
+            updatedBrands[brandIndex] = {
+                ...updatedBrands[brandIndex],
+                [name]: value
+            };
+            setEditFormData(prev => ({
+                ...prev,
+                brands: updatedBrands
+            }));
+        }
+    };
+
+    const addEditBrand = () => {
+        setEditFormData(prev => ({
+            ...prev,
+            brands: [...prev.brands, { name: '', images: null }]
+        }));
+    };
+
+    const removeEditBrand = (index) => {
+        const updatedBrands = [...editFormData.brands];
+        updatedBrands.splice(index, 1);
+        setEditFormData(prev => ({
+            ...prev,
+            brands: updatedBrands
+        }));
+    };
+
     const handleUpdateShop = async (shopId, updatedData) => {
         try {
             setUploading(true);
             setUploadError('');
+
+            // Process brands if needed
+            let updatedBrands = [...updatedData.brands];
+            
+            // Handle uploads for any new brand images
+            for (let i = 0; i < updatedBrands.length; i++) {
+                if (updatedBrands[i].images instanceof File) {
+                    const brandImageRef = ref(storage, `brands/${updatedBrands[i].images.name}`);
+                    const brandUpload = uploadBytesResumable(brandImageRef, updatedBrands[i].images);
+                    
+                    const imageUrl = await new Promise((resolve, reject) => {
+                        brandUpload.on(
+                            'state_changed',
+                            () => {},
+                            reject,
+                            () => resolve(getDownloadURL(brandUpload.snapshot.ref))
+                        );
+                    });
+                    
+                    updatedBrands[i] = {
+                        name: updatedBrands[i].name,
+                        images: imageUrl
+                    };
+                }
+            }
 
             // Check if there's a new photo to upload
             if (updatedData.ShopPhoto && updatedData.ShopPhoto instanceof File) {
@@ -549,7 +555,8 @@ const Shop = () => {
                             place: updatedData.place,
                             website: updatedData.website,
                             ShopPhoto: downloadURL,
-                            categories: updatedData.categories
+                            categories: updatedData.categories,
+                            brands: updatedBrands
                         };
 
                         await axios.put(`http://localhost:5000/api/shops/shop/${shopId}`, updateData);
@@ -572,7 +579,8 @@ const Shop = () => {
                     Tel: updatedData.Tel,
                     place: updatedData.place,
                     website: updatedData.website,
-                    categories: updatedData.categories
+                    categories: updatedData.categories,
+                    brands: updatedBrands
                 };
 
                 await axios.put(`http://localhost:5000/api/shops/shop/${shopId}`, updateData);
@@ -604,6 +612,8 @@ const Shop = () => {
 
         if (editStep === 1) {
             setEditStep(2);
+        } else if (editStep === 2) {
+            setEditStep(3); // Add step for brands
         } else {
             await handleUpdateShop(selectedShop._id, editFormData);
         }
@@ -662,6 +672,9 @@ const Shop = () => {
                 removeItem={removeEditItem}
                 step={editStep}
                 setStep={setEditStep}
+                addBrand={addEditBrand}
+                removeBrand={removeEditBrand}
+                handleBrandChange={handleEditBrandChange}
             />
 
             {/* Add Item Modal */}
