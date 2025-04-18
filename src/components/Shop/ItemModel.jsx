@@ -88,7 +88,6 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
             console.log(selectedCategory._id);
             // Make the API call to add the item
             const response = await axios.post(
-                
                 `http://localhost:5000/api/shops/shop/${selectedShop._id}/categories/${selectedCategory._id}/items`,
                 itemData,
                 {
@@ -96,8 +95,8 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                         'Content-Type': 'application/json',
                     },
                 }
-              
-            );  console.log(itemData);
+            );  
+            console.log(itemData);
             
             // Call the parent component's callback with the new item
             onAddItem(response.data);
@@ -115,6 +114,11 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
             
             // Close the modal
             onClose();
+            
+            // Refresh the page after a short delay to allow server processing
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to add item');
             console.error('Error adding item:', err);

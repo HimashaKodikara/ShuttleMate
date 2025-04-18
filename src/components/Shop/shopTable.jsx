@@ -139,8 +139,10 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
                 padding: '12px',
             },
         },
-
     };
+
+    // Custom component that renders nothing when there's no data
+    const NoDataComponent = () => <div></div>;
 
     const ExpandedComponent = ({ data }) => (
         <div className="p-4 m-4 border rounded-lg ">
@@ -206,23 +208,23 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
                 ) : (
                     <p className="text-gray-400">No categories found.</p>
                 )}
-                </div>
             </div>
-            );
+        </div>
+    );
 
-            // Use expandOnRowClicked to show the expanded component when a row is clicked
-            const conditionalRowStyles = [
-            {
-                when: row => expandedShop === row._id,
+    // Use expandOnRowClicked to show the expanded component when a row is clicked
+    const conditionalRowStyles = [
+        {
+            when: row => expandedShop === row._id,
             style: {
                 // Slate-800
             },
-    },
-            ];
+        },
+    ];
 
-            return (
-            <div className="px-4 py-4 md:px-20">
-                <div className="overflow-hidden rounded-lg shadow-xl">
+    return (
+        <div className="px-4 py-4 md:px-20">
+            <div className="overflow-hidden rounded-lg shadow-xl">
                 <DataTable
                     columns={columns}
                     data={shops}
@@ -239,17 +241,18 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
                     defaultSortFieldId={1}
                     highlightOnHover
                     responsive
+                    noDataComponent={<NoDataComponent />}
                 />
-                </div>
             </div>
-            );
+        </div>
+    );
 };
 
-            ShopDataTable.propTypes = {
-                shops: PropTypes.array,
-            onDelete: PropTypes.func.isRequired,
-            onAddItem: PropTypes.func.isRequired,
-            onEdit: PropTypes.func.isRequired
+ShopDataTable.propTypes = {
+    shops: PropTypes.array,
+    onDelete: PropTypes.func.isRequired,
+    onAddItem: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired
 };
 
-            export default ShopDataTable;
+export default ShopDataTable;
