@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import MatchEditModal from "./EditMatchModal";
 import { Pencil, Trash2 } from 'lucide-react';
+import Swal from "sweetalert2";
 
-
-const MatchDetails = ({ matches = [], isLoading, onUpdateMatch }) => {
+const MatchDetails = ({ matches = [], isLoading, onUpdateMatch, onDeleteMatch }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
 
@@ -20,6 +20,22 @@ const MatchDetails = ({ matches = [], isLoading, onUpdateMatch }) => {
   const handleSaveMatch = (updatedMatch) => {
     onUpdateMatch(updatedMatch);
     setIsModalOpen(false);
+  };
+
+  const handleDeleteClick = (matchId) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this deletion!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onDeleteMatch(matchId);
+      }
+    });
   };
 
   const columns = [
@@ -64,23 +80,28 @@ const MatchDetails = ({ matches = [], isLoading, onUpdateMatch }) => {
       ),
     },
     {
-      name: 'Edit',
+      name: 'Actions',
       cell: (row) => (
-          <div className="flex justify-center w-full">
-              <button
-                  className="flex items-center justify-center w-10 h-10 font-bold text-blue-500 duration-300 ease-in-out transform rounded hover:bg-blue-100 hover:scale-105"
-                  onClick={() => handleEditClick(row)}
-              >
-                  <Pencil size={18} />
-              </button>
-          </div>
+        <div className="flex items-center justify-center space-x-5">
+          <button
+            className="flex items-center justify-center w-10 h-10 font-bold text-blue-500 duration-300 ease-in-out transform rounded hover:bg-blue-100 hover:scale-105"
+            onClick={() => handleEditClick(row)}
+          >
+            <Pencil size={18} />
+          </button>
+          <button
+            className="flex items-center justify-center w-10 h-10 font-bold text-red-500 duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
+            onClick={() => handleDeleteClick(row._id)}
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
       center: true,
-  },
-   
+    },
   ];
 
   const customStyles = {
@@ -88,7 +109,6 @@ const MatchDetails = ({ matches = [], isLoading, onUpdateMatch }) => {
       style: {
         backgroundColor: '#1e3a8a',
         color: 'white',
-        //fontWeight: 'bold',
         justifyContent: 'center', // Center header text
         textAlign: 'center',
         fontSize: '14px',
@@ -96,10 +116,10 @@ const MatchDetails = ({ matches = [], isLoading, onUpdateMatch }) => {
     },
     cells: {
       style: {
-          padding: '0.5rem',
-          justifyContent: 'center',
+        padding: '0.5rem',
+        justifyContent: 'center',
       },
-  },
+    },
   };
 
   return (

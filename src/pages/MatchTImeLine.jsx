@@ -46,6 +46,34 @@ const MatchTimeLine = () => {
     setIsModalOpen(true);
   };
 
+  const handleDeleteMatch = async (matchId) => {
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/matches/${matchId}`);
+      
+      if (response.data.success) {
+        // Update state to remove the deleted match
+        setMatches(matches.filter(match => match._id !== matchId));
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Match has been deleted successfully.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } else {
+        throw new Error("Failed to delete match");
+      }
+    } catch (error) {
+      console.error("❌ Error deleting match:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete match'
+      });
+    }
+  };
+
   // Close Modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -142,7 +170,7 @@ const MatchTimeLine = () => {
   };
 
   return (
-    <div >
+    <div>
       <Navbar />
       <h2 className="mt-10 mb-8 text-3xl font-bold text-center">Matches Timeline</h2>
 
@@ -157,7 +185,12 @@ const MatchTimeLine = () => {
       </div>
 
       {/* Pass Matches to MatchDetails */}
-      <MatchDetails matches={matches} isLoading={isLoading} onUpdateMatch={handleEditMatch} />
+      <MatchDetails 
+        matches={matches} 
+        isLoading={isLoading} 
+        onUpdateMatch={handleEditMatch} 
+        onDeleteMatch={handleDeleteMatch}
+      />
 
       {/* Match Modal for Adding & Editing */}
       <MatchesModal
