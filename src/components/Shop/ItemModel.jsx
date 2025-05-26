@@ -10,11 +10,25 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
         price: '',
         color: '',
         itemphoto: null,
+        brand: '',
+        features: '',
+        availableqty: 0,
+        shopName: ''
     });
     const [photoURL, setPhotoURL] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
+
+    // Set shopName when selectedShop changes
+    React.useEffect(() => {
+        if (selectedShop) {
+            setItemDetails(prev => ({
+                ...prev,
+                shopName: selectedShop.ShopName
+            }));
+        }
+    }, [selectedShop]);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -41,7 +55,11 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                 name: itemDetails.name,
                 price: Number(itemDetails.price),
                 color: itemDetails.color,
-                categoryId:selectedCategory._id
+                brand: itemDetails.brand,
+                features: itemDetails.features,
+                availableqty: Number(itemDetails.availableqty),
+                shopName: itemDetails.shopName,
+                categoryId: selectedCategory._id
             };
 
             // If there's a photo to upload, handle it first
@@ -106,7 +124,11 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                 name: '',
                 price: '',
                 color: '',
-                categoryId:'',
+                brand: '',
+                features: '',
+                availableqty: 0,
+                shopName: '',
+                categoryId: '',
                 itemphoto: null,
             });
             setPhotoURL('');
@@ -131,7 +153,7 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="p-6 overflow-y-auto bg-white rounded-lg w-96 max-h-[90vh]">
+            <div className="p-6 overflow-y-auto bg-white rounded-lg max-h-[90vh] w-auto">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">Add New Item</h2>
                     <button 
@@ -154,9 +176,9 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                     </div>
                 )}
                 
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label className="block mb-1 text-sm font-medium">Item Name</label>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                    <div>
+                        <label className="block mb-1 text-sm font-medium">Item Name*</label>
                         <input 
                             type="text" 
                             name="name" 
@@ -168,8 +190,8 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                         />
                     </div>
                     
-                    <div className="mb-3">
-                        <label className="block mb-1 text-sm font-medium">Price</label>
+                    <div>
+                        <label className="block mb-1 text-sm font-medium">Price*</label>
                         <input 
                             type="number" 
                             name="price" 
@@ -183,7 +205,19 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                         />
                     </div>
                     
-                    <div className="mb-3">
+                    <div>
+                        <label className="block mb-1 text-sm font-medium">Brand</label>
+                        <input 
+                            type="text" 
+                            name="brand" 
+                            placeholder="Brand (optional)" 
+                            className="w-full p-2 border rounded" 
+                            onChange={handleChange} 
+                            value={itemDetails.brand}
+                        />
+                    </div>
+                    
+                    <div>
                         <label className="block mb-1 text-sm font-medium">Color</label>
                         <input 
                             type="text" 
@@ -195,14 +229,40 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                         />
                     </div>
                     
-                    <div className="mb-3">
-                        <label className="block mb-1 text-sm font-medium">Item Photo</label>
+                    <div>
+                        <label className="block mb-1 text-sm font-medium">Available Quantity</label>
+                        <input 
+                            type="number" 
+                            name="availableqty" 
+                            placeholder="Available Quantity" 
+                            className="w-full p-2 border rounded" 
+                            onChange={handleChange} 
+                            value={itemDetails.availableqty}
+                            min="0"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="block mb-1 text-sm font-medium">Features</label>
+                        <textarea 
+                            name="features" 
+                            placeholder="Item features (optional)" 
+                            className="w-full p-2 border rounded" 
+                            onChange={handleChange} 
+                            value={itemDetails.features}
+                            rows="3"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="block mb-1 text-sm font-medium">Item Photo*</label>
                         <input 
                             type="file" 
                             name="itemphoto" 
                             accept="image/*"
                             className="w-full p-2 border rounded" 
                             onChange={handleChange}
+                            required
                         />
                         {uploadProgress > 0 && uploadProgress < 100 && (
                             <div className="w-full mt-1 bg-gray-200 rounded-full h-2.5">
@@ -215,7 +275,7 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                         )}
                     </div>
 
-                    <div className="flex justify-end mt-6">
+                    <div className="flex justify-end pt-4">
                         <button 
                             type="button" 
                             className="p-2 mr-2 text-white bg-gray-500 rounded hover:bg-gray-600" 
