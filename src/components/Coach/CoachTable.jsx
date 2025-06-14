@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Clock } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import EditCoachModal from './EditCoachModel';
+import AvailableTimeModal from './AvailableTime';
 
 const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
     const [modalOpen, setModalOpen] = useState(false);
+    const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false);
     const [selectedCoacher, setSelectedCoacher] = useState(null);
     const [step, setStep] = useState(1);
 
@@ -43,6 +45,27 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
         {
             name: 'Tel',
             selector: row => row.Tel,
+            center: true,
+        },
+        {
+            name: 'Available Times',
+            cell: row => (
+                <div className="flex justify-center w-full">
+                    <button
+                        className="flex items-center justify-center w-10 h-10 font-bold text-green-500 duration-300 ease-in-out transform rounded hover:bg-green-100 hover:scale-105"
+                        onClick={() => {
+                            setSelectedCoacher(row);
+                            setAvailabilityModalOpen(true);
+                        }}
+                        title="Manage Available Times"
+                    >
+                        <Clock size={18} />
+                    </button>
+                </div>
+            ),
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
             center: true,
         },
         {
@@ -84,9 +107,14 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
         },
     ];
 
-    // Close the modal
+    // Close the modals
     const closeModal = () => {
         setModalOpen(false);
+        setSelectedCoacher(null);
+    };
+
+    const closeAvailabilityModal = () => {
+        setAvailabilityModalOpen(false);
         setSelectedCoacher(null);
     };
 
@@ -107,7 +135,6 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
                             style: {
                                 backgroundColor: '#1e3a8a',
                                 color: 'white',
-                               /// fontWeight: 'bold',
                                 justifyContent: 'center',
                                 textAlign: 'center',
                                 fontSize:'14px'
@@ -136,7 +163,7 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
                 />
             </div>
 
-            {/* Modal */}
+            {/* Edit Coach Modal */}
             {modalOpen && selectedCoacher && (
                 <EditCoachModal
                     isOpen={modalOpen}
@@ -164,6 +191,16 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
                     }}
                     uploadError={''}
                     setStep={setStep}
+                />
+            )}
+
+            {/* Available Times Modal */}
+            {availabilityModalOpen && selectedCoacher && (
+                <AvailableTimeModal
+                    isOpen={availabilityModalOpen}
+                    coachId={selectedCoacher._id}
+                    coachName={selectedCoacher.CoachName}
+                    onClose={closeAvailabilityModal}
                 />
             )}
         </div>
