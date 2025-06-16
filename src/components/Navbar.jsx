@@ -4,9 +4,9 @@ import images from '../assets/Images';
 
 const Navbar = () => {
     return (
-        <nav className="bg-gradient-to-r from-blue-700 to-blue-900 p-1">
+        <nav className="bg-gradient-to-r from-blue-700 to-blue-900 p-0">
             <div className="container flex items-center justify-between ">
-                <div className='flex flex-row items-center justify-center ml-10 space-x-16'><img src={images.logo} height={40} width={75}/>
+                <div className='flex flex-row items-center justify-center ml-10 space-x-16'><img src={images.logo} height={40} width={60}/>
                 <div className="items-center font-serif text-2xl font-bold text-white ">Shuttlemate</div>
                 </div>
                 <div className="hidden pr-8 space-x-6 md:flex">

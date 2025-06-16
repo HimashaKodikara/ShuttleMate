@@ -1,26 +1,26 @@
 import { useState } from 'react';
-import { login, googleSignIn, resetPassword } from './FirebaseAuth';
-import { useAuth } from '../context/AuthContext';
+import { googleSignIn, resetPassword } from './FirebaseAuth'; // Keep these for Google login and password reset
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import images from '../assets/Images/index.js'; 
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [resetEmail, setResetEmail] = useState(''); // For password reset
-  const navigate = useNavigate();
+const [username, setUsername] = useState('');
+const [password, setPassword] = useState('');
+const [resetEmail, setResetEmail] = useState('');
+const [loading, setLoading] = useState('');
+const navigate = useNavigate();
 
-  const { currentUser } = useAuth();
 
-  const handleSignUpClick = () => {
-    navigate('/register'); // Navigate to signup page
-  };
-  const Back = () => {
-    navigate('/splashscreen'); // Navigate to signup page
-  };
-  // Function to handle password reset
-  const handlePasswordReset = async () => {
+const handleSignUpClick = () => {
+  navigate('/register');
+};
+
+const Back = () => {
+  navigate('/splashscreen');
+};
+
+const handlePasswordReset = async () => {
     try {
       await resetPassword(resetEmail);
       Swal.fire({
@@ -40,27 +40,78 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await login(email, password);
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify({
+        username: data.data.username || data.data.user.username,
+        role: data.data.role || data.data.user.role,
+        email: data.data.user?.email
+      }));
+
       Swal.fire({
         title: 'Success!',
-        text: 'You have logged in successfully.',
+        text: data.message || 'You have logged in successfully.',
         icon: 'success',
         confirmButtonText: 'Okay',
       });
-      navigate('/home');
-    } catch (err) {
+
+      const userRole = data.data.role || data.data.user.role;
+
+      switch (userRole) {
+        case 'admin':
+          navigate('/home');
+          break;
+        case 'coach':
+          navigate('/Coachers');
+          break;
+        case 'courtowner':
+          navigate('/Court');
+          break;
+        case 'shopowner':
+          navigate('/shop');
+          break;
+        default:
+          navigate('/home');
+      }
+    } else {
       Swal.fire({
         title: 'Error!',
-        text: err.message,
+        text: data.message || 'Login failed. Please check your credentials.',
         icon: 'error',
         confirmButtonText: 'Okay',
       });
     }
-  };
+  } catch (err) {
+    Swal.fire({
+      title: 'Error!',
+      text: 'Network error. Please try again.',
+      icon: 'error',
+      confirmButtonText: 'Okay',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const handleGoogleLogin = async () => {
+
+    const handleGoogleLogin = async () => {
     try {
       await googleSignIn();
       Swal.fire({
@@ -73,24 +124,25 @@ const Login = () => {
     } catch (err) {
       Swal.fire({
         title: 'Error!',
-        text: 'Please enter valid details',
+        text: 'Google login failed. Please try again.',
         icon: 'error',
         confirmButtonText: 'Okay',
       });
     }
   };
-
   return (
-    <div  className="flex items-center justify-center h-screen bg-center bg-cover"
-    style={{ backgroundImage: `url(${images.Bg})` }}  >
-      <div className="w-1/3 ">
-     
+    <div className="flex items-center justify-center h-screen bg-center bg-cover"
+         style={{ backgroundImage: `url(${images.Bg})` }}>
+      <div className="w-1/3">
         <div className="w-full p-8 bg-white rounded-lg shadow-md">
-        <img src={images.BackArrow} className='w-5 h-5 cursor-pointer' onClick={Back} />
+          <img src={images.BackArrow} className='w-5 h-5 cursor-pointer' onClick={Back} />
           <h2 className="mb-6 text-3xl font-bold text-center uppercase">Login</h2>
-          <p className='ml-32'>Don't have an account? <button className='ml-3 underline cursor-pointer hover:text-red-400' onClick={handleSignUpClick}>Sign Up</button></p>
+          <p className='ml-32'>Don't have an account? 
+            <button className='ml-3 underline cursor-pointer hover:text-red-400' onClick={handleSignUpClick}>
+              Sign Up
+            </button>
+          </p>
           
-        
           <button
             onClick={handleGoogleLogin}
             className="flex items-center justify-center w-full px-4 py-2 mt-6 mb-3 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-full hover:bg-gray-100"
@@ -107,18 +159,18 @@ const Login = () => {
           
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <p className='text-gray-600 '>Your Email</p>
+              <p className='text-gray-600'>Your Username</p>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="mb-4">
-              <p className='text-gray-600 '>Your Password</p>
+              <p className='text-gray-600'>Your Password</p>
               <input
                 type="password"
                 value={password}
@@ -130,29 +182,31 @@ const Login = () => {
             </div>
             
             {/* Forgot Password Button */}
-            <p className="mb-4 text-right text-blue-600 underline cursor-pointer" onClick={() => Swal.fire({
-              title: 'Reset Password',
-              input: 'email',
-              inputLabel: 'Enter your email to reset password',
-              inputValue: resetEmail,
-              inputPlaceholder: 'Email',
-              showCancelButton: true,
-              confirmButtonText: 'Send',
-              preConfirm: (email) => setResetEmail(email),
-              allowOutsideClick: false
-            }).then((result) => {
-              if (result.isConfirmed) {
-                handlePasswordReset(); // Call the reset password function
-              }
-            })}>
+            <p className="mb-4 text-right text-blue-600 underline cursor-pointer" 
+               onClick={() => Swal.fire({
+                 title: 'Reset Password',
+                 input: 'email',
+                 inputLabel: 'Enter your email to reset password',
+                 inputValue: resetEmail,
+                 inputPlaceholder: 'Email',
+                 showCancelButton: true,
+                 confirmButtonText: 'Send',
+                 preConfirm: (email) => setResetEmail(email),
+                 allowOutsideClick: false
+               }).then((result) => {
+                 if (result.isConfirmed) {
+                   handlePasswordReset();
+                 }
+               })}>
               Forgot Password?
             </p>
 
             <button
               type="submit"
-              className="w-full py-2 text-white transition duration-200 bg-blue-500 rounded-3xl hover:bg-blue-600"
+              disabled={loading}
+              className="w-full py-2 text-white transition duration-200 bg-blue-500 rounded-3xl hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed"
             >
-              Login
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
         </div>
