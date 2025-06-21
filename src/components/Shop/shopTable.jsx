@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DataTable from "react-data-table-component";
 import { Trash2, Pencil, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import {useAuth} from '../../context/AuthContext';
+
 
 const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
+     const { user } = useAuth();
     const [expandedShop, setExpandedShop] = useState(null);
     const [expandedCategories, setExpandedCategories] = useState({});
     const [categoryItems, setCategoryItems] = useState({});
@@ -38,7 +41,7 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
         }
     };
 
-    const columns = [
+    const baseColumns = [
         {
             name: 'Shop Photo',
             cell: row => (
@@ -97,22 +100,28 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
             ignoreRowClick: true,
             button: true,
         },
-        {
-            name: 'Delete',
-            cell: row => (
-                <button
-                    onClick={() => onDelete(row._id)}
-                    className="px-4 py-1 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
-                >
-                    <Trash2 size={18} />
-                </button>
-            ),
-            center: true,
-            ignoreRowClick: true,
-            button: true,
-        },
+       
     ];
 
+      const deleteColumn = {
+        name: 'Delete',
+        cell: row => (
+            <button
+                onClick={() => onDelete(row._id)}
+                className="px-4 py-1 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
+            >
+                <Trash2 size={18} />
+            </button>
+        ),
+        center: true,
+        ignoreRowClick: true,
+        button: true,
+    };
+
+     const isAdmin = user?.role === 'admin';
+    
+    // Conditionally add delete column based on admin status
+    const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
     const customStyles = {
         headRow: {
             style: {

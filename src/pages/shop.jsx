@@ -629,6 +629,7 @@ const Shop = () => {
                 </button>
             </div>
             <ShopTable
+                 
                 shops={shops}
                 onDelete={handleDeleteShop}
                 onAddItem={openItemModal}

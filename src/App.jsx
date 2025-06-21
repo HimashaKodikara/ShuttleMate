@@ -1,6 +1,8 @@
-import { Routes, Route, Navigate } from 'react-router-dom'; // Import Navigate for redirection
-
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -10,29 +12,88 @@ import Coachers from './pages/Coachers';
 import Court from './pages/court';
 import Shop from './pages/shop';
 import MatchTimeLine from './pages/MatchTImeLine';
-
-
 import Timeline from './pages/timeline';
+import Unauthorized from './pages/Unauthorized';
 
 function App() {
   return (
     <AuthProvider>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Navigate to="/Splashscreen" />} /> {/* Redirect root to home */}
+          {/* Public routes */}
+          <Route path="/" element={<Navigate to="/Splashscreen" />} />
           <Route path="/Splashscreen" element={<Splashscreen />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home />} />
-          <Route path='/Videopage' element={<VideoPage/>}/>
-          <Route path ='/Coachers' element= {<Coachers/>}/>
-          <Route path='/shop' element={<Shop/>}/>
-          <Route path ='/Court' element= {<Court/>}/>
-          <Route path ='/timeline' element= {<Timeline/>}/>
-          <Route path='/Matchtimeline' element={<MatchTimeLine/>}/>
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* General protected routes (any authenticated user) */}
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/Videopage" 
+            element={
+              <ProtectedRoute>
+                <VideoPage />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/timeline" 
+            element={
+              <ProtectedRoute>
+                <Timeline />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/Matchtimeline" 
+            element={
+              <ProtectedRoute>
+                <MatchTimeLine />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Role-specific protected routes */}
+          <Route 
+            path="/Coachers" 
+            element={
+              <ProtectedRoute allowedRoles={['coach', 'admin']}>
+                <Coachers />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/Court" 
+            element={
+              <ProtectedRoute allowedRoles={['courtowner', 'admin']}>
+                <Court />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/shop" 
+            element={
+              <ProtectedRoute allowedRoles={['shopowner', 'admin']}>
+                <Shop />
+              </ProtectedRoute>
+            } 
+          />
 
           
-
+          <Route path="*" element={<Navigate to="/home" />} />
         </Routes>
       </div>
     </AuthProvider>

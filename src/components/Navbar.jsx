@@ -1,25 +1,128 @@
 import React from 'react';
 import Video from '../pages/VideoPage';
 import images from '../assets/Images';
+import { useAuth } from '../context/AuthContext';
+import { useLogout } from '../hooks/useLogout';
 
 const Navbar = () => {
+    const { user, isAuthenticated } = useAuth();
+    const handleLogout = useLogout();
+
+    if (!isAuthenticated) return null;
+
+    const navigationItems = [
+        {
+            href: "Home",
+            label:"Home",
+            roles:["admin","coach","courtowner","shopowner"]
+        },
+        {
+            href:"VideoPage",
+            label:"Training Videos",
+            roles: ["admin","coach"]
+        },
+        {
+            href:"Coachers",
+            label:"Coaches",
+            roles: ["admin","coach"]
+        },
+        {
+            href:"Court",
+            label:"Courts",
+            roles: ["admin","courtowner"]
+        },
+        {
+            href:"shop",
+            label:"Shop",
+            roles: ["admin","shopowner"]
+        },
+        {
+            href:"Matchtimeline",
+            label:"Match Timeline",
+            roles: ["admin","coach","courtowner","shopowner"]
+        }
+    ]
+
+     const getVisibleNavItems = () => {
+        if (user?.role === "admin") {
+            return navigationItems; // Admin sees everything
+        }
+        
+        return navigationItems.filter(item => 
+            item.roles.includes(user?.role)
+        );
+    };
+
+
+    const visibleNavItems = getVisibleNavItems();
     return (
-        <nav className="bg-gradient-to-r from-blue-700 to-blue-900 p-0">
-            <div className="container flex items-center justify-between ">
-                <div className='flex flex-row items-center justify-center ml-10 space-x-16'><img src={images.logo} height={40} width={60}/>
-                <div className="items-center font-serif text-2xl font-bold text-white ">Shuttlemate</div>
-                </div>
-                <div className="hidden pr-8 space-x-6 md:flex">
-                    <a href="Home" className="text-gray-300 hover:text-white">Home</a>
-                    <a href="VideoPage" className="text-gray-300 hover:text-white">Videos</a>
-                    <a href="Coachers" className="text-gray-300 hover:text-white">Coachers</a>
-                    <a href="Court" className="text-gray-300 hover:text-white">Courts</a>
-                    <a href="shop" className="text-gray-300 hover:text-white">Shops</a>
-                    <a href='Matchtimeline' className="text-gray-300 hover:text-white">Match Timeline</a>
-                </div>
-                
-            </div>
+        <nav className="bg-blue shadow-lg border-b border-gray-200">
+            <div className="container mx-auto px-6 py-3">
+                <div className="flex items-center justify-between">
             
+                    <div className="flex items-center space-x-4">
+                        <img 
+                            src={images.logo} 
+                            alt="Shuttlemate Logo"
+                            className="h-10 w-auto"
+                        />
+                        <div className="text-2xl font-bold text-gray-800 tracking-tight">
+                            Shuttlemate
+                        </div>
+                    </div>
+
+                  <div className="hidden md:flex items-center space-x-8">
+                        {visibleNavItems.map((item, index) => (
+                            <a 
+                                key={index}
+                                href={item.href} 
+                                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-3 py-2 rounded-md hover:bg-gray-50"
+                            >
+                                {item.label}
+                            </a>
+                        ))}
+                    </div>
+            
+                    <div className="flex items-center space-x-4">
+                        <div className="hidden sm:flex flex-col items-end">
+                            <span className="text-sm font-semibold text-gray-800">
+                                {user?.username}
+                            </span>
+                            <span className="text-xs text-gray-500  tracking-wide">
+                                {user?.role}
+                            </span>
+                        </div>
+                        <div className="h-8 w-px bg-gray-300"></div>
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile Menu Button (you can expand this later) */}
+          <div className="md:hidden px-6 pb-3">
+                <div className="flex flex-col space-y-2">
+                    <button className="text-gray-700 hover:text-blue-600 font-medium text-left">
+                        Menu
+                    </button>
+                    {/* Mobile menu items can be expanded here with same role filtering */}
+                    <div className="hidden flex-col space-y-2 pl-4" id="mobile-menu">
+                        {visibleNavItems.map((item, index) => (
+                            <a
+                                key={index}
+                                href={item.href}
+                                className="text-gray-600 hover:text-blue-600 text-sm py-1"
+                            >
+                                {item.label}
+                            </a>
+                        ))}
+                    </div>
+                </div>
+                </div>
         </nav>
     );
 };
