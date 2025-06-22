@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import { Pencil, Trash2 } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import EditCourtModal from './EditCourtModel';
+import {useAuth} from '../../context/AuthContext';
+
 
 const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
+    const { user } = useAuth();
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedCourt, setSelectedCourt] = useState(null);
     const [step, setStep] = useState(1);
@@ -13,7 +16,7 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
     const safeOnDelete = typeof onDelete === 'function' ? onDelete : () => console.warn('onDelete is not a function');
     const safeOnUpdate = typeof onUpdate === 'function' ? onUpdate : () => console.warn('onUpdate is not a function');
 
-    const columns = [
+    const baseColumns = [
         {
             name: 'Court Photo',
             selector: row => (
@@ -63,25 +66,44 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
             button: true,
             center: true,
         },
-        {
-            name: 'Delete',
-            cell: (row) => (
-                <div className="flex justify-center w-full">
-                    <button
-                        className="flex items-center justify-center w-10 h-10 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
-                        onClick={() => row._id && safeOnDelete(row._id)}
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                </div>
-            ),
-            ignoreRowClick: true,
-            allowOverflow: true,
-            button: true,
-            center: true,
-        },
+        // {
+        //     name: 'Delete',
+        //     cell: (row) => (
+        //         <div className="flex justify-center w-full">
+        //             <button
+        //                 className="flex items-center justify-center w-10 h-10 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
+        //                 onClick={() => row._id && safeOnDelete(row._id)}
+        //             >
+        //                 <Trash2 size={18} />
+        //             </button>
+        //         </div>
+        //     ),
+        //     ignoreRowClick: true,
+        //     allowOverflow: true,
+        //     button: true,
+        //     center: true,
+        // },
     ];
 
+     const deleteColumn = {
+            name: 'Delete',
+            cell: row => (
+                <button
+                    onClick={() => onDelete(row._id)}
+                    className="px-4 py-1 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
+                >
+                    <Trash2 size={18} />
+                </button>
+            ),
+            center: true,
+            ignoreRowClick: true,
+            button: true,
+        };
+    
+         const isAdmin = user?.role === 'admin';
+        
+        // Conditionally add delete column based on admin status
+        const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
     const closeModal = () => {
         setModalOpen(false);
         setSelectedCourt(null);

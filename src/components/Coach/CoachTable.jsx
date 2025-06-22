@@ -4,14 +4,16 @@ import { Pencil, Trash2, Clock } from 'lucide-react';
 import DataTable from 'react-data-table-component';
 import EditCoachModal from './EditCoachModel';
 import AvailableTimeModal from './AvailableTime';
+import {useAuth} from '../../context/AuthContext';
 
 const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
+         const { user } = useAuth();
     const [modalOpen, setModalOpen] = useState(false);
     const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false);
     const [selectedCoacher, setSelectedCoacher] = useState(null);
     const [step, setStep] = useState(1);
 
-    const columns = [
+    const baseColumns = [
         {
             name: 'Coach Photo',
             selector: row => (
@@ -88,24 +90,43 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
             button: true,
             center: true,
         },
-        {
+        // {
+        //     name: 'Delete',
+        //     cell: row => (
+        //         <div className="flex justify-center w-full">
+        //             <button
+        //                 className="flex items-center justify-center w-10 h-10 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
+        //                 onClick={() => row._id && onDelete(row._id)}
+        //             >
+        //                 <Trash2 size={18} />
+        //             </button>
+        //         </div>
+        //     ),
+        //     ignoreRowClick: true,
+        //     allowOverflow: true,
+        //     button: true,
+        //     center: true,
+        // },
+    ];
+
+    const deleteColumn = {
             name: 'Delete',
             cell: row => (
-                <div className="flex justify-center w-full">
-                    <button
-                        className="flex items-center justify-center w-10 h-10 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
-                        onClick={() => row._id && onDelete(row._id)}
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                </div>
+                <button
+                    onClick={() => onDelete(row._id)}
+                    className="px-4 py-1 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
+                >
+                    <Trash2 size={18} />
+                </button>
             ),
-            ignoreRowClick: true,
-            allowOverflow: true,
-            button: true,
             center: true,
-        },
-    ];
+            ignoreRowClick: true,
+            button: true,
+        };
+    
+         const isAdmin = user?.role === 'admin';
+         const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
+
 
     // Close the modals
     const closeModal = () => {
