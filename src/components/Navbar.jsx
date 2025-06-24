@@ -3,6 +3,7 @@ import Video from '../pages/VideoPage';
 import images from '../assets/Images';
 import { useAuth } from '../context/AuthContext';
 import { useLogout } from '../hooks/useLogout';
+import Swal from 'sweetalert2';
 
 const Navbar = () => {
     const { user, isAuthenticated } = useAuth();
@@ -53,8 +54,26 @@ const Navbar = () => {
         );
     };
 
+    const handleLogoutClick = async () => {
+        const result = await Swal.fire({
+            title: 'Confirm Sign Out',
+            text: 'Are you sure you want to sign out of your account?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Sign Out',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
+            handleLogout();
+        }
+    };
 
     const visibleNavItems = getVisibleNavItems();
+    
     return (
         <nav className="bg-blue shadow-lg border-b border-gray-200">
             <div className="container mx-auto px-6 py-3">
@@ -94,7 +113,7 @@ const Navbar = () => {
                         </div>
                         <div className="h-8 w-px bg-gray-300"></div>
                         <button
-                            onClick={handleLogout}
+                            onClick={handleLogoutClick}
                             className="bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                         >
                             Sign Out
