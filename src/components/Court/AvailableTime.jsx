@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Clock, Calendar, Trash2, Edit3, Save, X, User, BookOpen, Check, XCircle, Eye, ChevronLeft } from 'lucide-react';
 import { set } from 'date-fns';
+import Swal from 'sweetalert2';
+
 
 const AvailableTime = ({ isOpen, courtId, courtName, onClose }) => {
     const [availabilitySlots, setAvailabilitySlots] = useState([]);
@@ -162,9 +164,25 @@ const addAvailabilitySlot = async () => {
 };
 
 const deleteAvailabilitySlot = async (slotId) => {
-    try{
+    // Show confirmation dialog first
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    });
+
+
+    if (!result.isConfirmed) {
+        return;
+    }
+
+    try {
         setError('');
-        const response = await fetch(`http://localhost:5000/api/courts/${courtId}/availability/${slotId}`,{
+        const response = await fetch(`http://localhost:5000/api/courts/${courtId}/availability/${slotId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -173,16 +191,41 @@ const deleteAvailabilitySlot = async (slotId) => {
 
         const data = await response.json();
 
-        if(data.success){
-            setAvailabilitySlots(availabilitySlots.filter(slot => slot._id))
-        }else{
+        if (data.success) {
+           
+            setAvailabilitySlots(availabilitySlots.filter(slot => slot._id !== slotId));
+            
+          
+            await Swal.fire({
+                title: 'Deleted!',
+                text: 'Availability slot has been deleted.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+       
+        } else {
             setError(data.message || 'Failed to delete availability slot');
+            
+          
+            Swal.fire({
+                title: 'Error!',
+                text: data.message || 'Failed to delete availability slot',
+                icon: 'error'
+            });
         }
-    }catch(err) {
+    } catch (err) {
         setError('Failed to delete availability slot');
+        
+        // Show error alert for network/other errors
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to delete availability slot',
+            icon: 'error'
+        });
     }
 };
-
 
 const startEdit = (slot) => {
     setEditingSlot({ ...slot});
@@ -589,8 +632,8 @@ const saveEdit = async () => {
                                 <User className="w-5 h-5 text-indigo-600" />
                               </div>
                               <div>
-                                <h3 className="font-semibold text-gray-800">{booking.userName || 'User'}</h3>
-                                <p className="text-sm text-gray-600">{booking.userEmail || 'No email provided'}</p>
+                                <h3 className="font-semibold text-gray-800">{booking.userId?.name || 'User'}</h3>
+                                <p className="text-sm text-gray-600">{booking.userId?.email || 'No email provided'}</p>
                               </div>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
@@ -626,7 +669,7 @@ const saveEdit = async () => {
                                 <span>Accept</span>
                               </button>
                               <button
-                                onClick={() => updateBookingStatus(booking._id, ' cancelled')}
+                                onClick={() => updateBookingStatus(booking._id, 'cancelled')}
                                 className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
                               >
                                 <XCircle className="w-4 h-4" />

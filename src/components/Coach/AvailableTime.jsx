@@ -566,8 +566,8 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
                                 <User className="w-5 h-5 text-indigo-600" />
                               </div>
                               <div>
-                                <h3 className="font-semibold text-gray-800">{booking.userName || 'User'}</h3>
-                                <p className="text-sm text-gray-600">{booking.userEmail || 'No email provided'}</p>
+                                <h3 className="font-semibold text-gray-800">{booking.userId?.name || 'User'}</h3>
+                                <p className="text-sm text-gray-600">{booking.userId?.email || 'No email provided'}</p>
                               </div>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
@@ -603,7 +603,7 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
                                 <span>Accept</span>
                               </button>
                               <button
-                                onClick={() => updateBookingStatus(booking._id, ' cancelled')}
+                                onClick={() => updateBookingStatus(booking._id, 'cancelled')}
                                 className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
                               >
                                 <XCircle className="w-4 h-4" />
