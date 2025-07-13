@@ -247,6 +247,18 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
     return grouped;
   };
 
+  // Helper function to safely get user data
+  const getUserData = (booking) => {
+    if (!booking.userId) return null;
+    
+    // Handle both populated and non-populated userId
+    if (typeof booking.userId === 'object') {
+      return booking.userId; // Already populated
+    }
+    
+    return null; // Not populated, just an ID
+  };
+
   const pendingBookingsCount = bookings.filter(booking => booking.status === 'pending').length;
 
   if (!isOpen) return null;
@@ -558,73 +570,84 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {bookings.map((booking) => (
-                        <div key={booking._id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="bg-indigo-100 p-2 rounded-lg">
-                                <User className="w-5 h-5 text-indigo-600" />
+                      {bookings.map((booking) => {
+                        const userData = getUserData(booking);
+                        
+                        return (
+                          <div key={booking._id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="bg-indigo-100 p-2 rounded-lg">
+                                  <User className="w-5 h-5 text-indigo-600" />
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-gray-800">
+                                    {userData?.name || 'Unknown User'}
+                                  </h3>
+                                  <p className="text-sm text-gray-600">
+                                    {userData?.email || 'No email provided'}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    {userData?.phoneNumber || 'No phone number provided'}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-800">{booking.userId?.name || 'User'}</h3>
-                                <p className="text-sm text-gray-600">{booking.userId?.email || 'No email provided'}</p>
-                              </div>
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
+                                {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1)}
+                              </span>
                             </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
-                              {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1)}
-                            </span>
-                          </div>
 
-                          <div className="space-y-3 mb-4">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Calendar className="w-4 h-4 mr-2" />
-                              <span>{formatDate(booking.date)}</span>
+                            <div className="space-y-3 mb-4">
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Calendar className="w-4 h-4 mr-2" />
+                                <span>{formatDate(booking.date)}</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Clock className="w-4 h-4 mr-2" />
+                                <span>{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span>
+                              </div>
+                              {booking.message && (
+                                <div className="bg-gray-50 p-3 rounded-lg">
+                                  <p className="text-sm text-gray-700">
+                                    <strong>Message:</strong> {booking.message}
+                                  </p>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Clock className="w-4 h-4 mr-2" />
-                              <span>{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span>
-                            </div>
-                            {booking.message && (
-                              <div className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-sm text-gray-700">
-                                  <strong>Message:</strong> {booking.message}
-                                </p>
+
+                            {booking.status === 'pending' && (
+                              <div className="flex space-x-3">
+                                <button
+                                  onClick={() => updateBookingStatus(booking._id, 'confirmed')}
+                                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
+                                >
+                                  <Check className="w-4 h-4" />
+                                  <span>Accept</span>
+                                </button>
+                                <button
+                                  onClick={() => updateBookingStatus(booking._id, 'cancelled')}
+                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                  <span>Reject</span>
+                                </button>
+                              </div>
+                            )}
+
+                            {booking.status === 'confirmed' && (
+                              <div className="flex space-x-3">
+                                <button
+                                  onClick={() => updateBookingStatus(booking._id, 'completed')}
+                                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
+                                >
+                                  <Check className="w-4 h-4" />
+                                  <span>Mark Complete</span>
+                                </button>
                               </div>
                             )}
                           </div>
-
-                          {booking.status === 'pending' && (
-                            <div className="flex space-x-3">
-                              <button
-                                onClick={() => updateBookingStatus(booking._id, 'confirmed')}
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
-                              >
-                                <Check className="w-4 h-4" />
-                                <span>Accept</span>
-                              </button>
-                              <button
-                                onClick={() => updateBookingStatus(booking._id, 'cancelled')}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
-                              >
-                                <XCircle className="w-4 h-4" />
-                                <span>cancelled</span>
-                              </button>
-                            </div>
-                          )}
-
-                          {booking.status === 'confirmed' && (
-                            <div className="flex space-x-3">
-                              <button
-                                onClick={() => updateBookingStatus(booking._id, 'completed')}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
-                              >
-                                <Check className="w-4 h-4" />
-                                <span>Mark Complete</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </>

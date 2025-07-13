@@ -54,20 +54,19 @@ const Coachers = () => {
         }
     };
 
-    const fetchCoacherById = async (id) => {
-        try {
-            const response = await axios.get(`http://localhost:5000/api/Coachers/${id}`);
-            // Handle potential different response formats
-            const coacherData = response.data.coacher || response.data;
-            setFormData(coacherData);
-            setStep(2);
-            setEditingCoachId(id);
-            setIsEditModalOpen(true); // Open Edit Coach Modal
-        } catch (error) {
-            console.error('Error fetching coach:', error);
-        }
-    };
-
+   const fetchCoacherById = async (id) => {
+    try {
+        const response = await axios.get(`http://localhost:5000/api/Coachers/${id}`);
+        // Handle potential different response formats
+        const coacherData = response.data.coacher || response.data;
+        setFormData(coacherData);
+        setStep(1); // Start from step 1 for editing
+        setEditingCoachId(id);
+        setIsEditModalOpen(true); // Open Edit Coach Modal
+    } catch (error) {
+        console.error('Error fetching coach:', error);
+    }
+};
     useEffect(() => {
         fetchCoachers();
         fetchCourts(); // Fetch courts when component mounts
@@ -127,84 +126,125 @@ const Coachers = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (step === 1) {
-            setStep(2);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (step === 1) {
+        setStep(2);
+    } else {
+        // For adding new coach, photo is required
+        if (!editingCoachId && !formData.CoachPhoto) {
+            setUploadError('Please upload a coach photo.');
+            return;
+        }
+
+        setUploading(true);
+        setUploadError('');
+
+        // Check if we need to upload a new photo
+        const needsPhotoUpload = formData.CoachPhoto && 
+                                typeof formData.CoachPhoto === 'object' && 
+                                formData.CoachPhoto instanceof File;
+
+        if (needsPhotoUpload) {
+            // Upload new photo to Firebase
+            const storageRef = ref(storage, `coaches/${Date.now()}_${formData.CoachPhoto.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, formData.CoachPhoto);
+
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    // Optional: Add progress tracking here
+                },
+                (error) => {
+                    console.error('Upload error:', error);
+                    setUploadError('Failed to upload the coach photo.');
+                    setUploading(false);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        const updatedCoacher = { ...formData, CoachPhoto: downloadURL };
+                        submitCoachData(updatedCoacher);
+                    });
+                }
+            );
         } else {
-            if (!formData.CoachPhoto) {
-                setUploadError('Please upload a coach photo.');
-                return;
-            }
-
-            setUploading(true);
-            setUploadError('');
-
-            // Check if CoachPhoto is already a URL string or a File object
-            if (typeof formData.CoachPhoto === 'string') {
-                // It's already a URL, so no need to upload again
+            // Use existing photo URL or handle case where no photo is provided
+            if (editingCoachId) {
+                // For editing, keep existing photo if no new photo is uploaded
                 submitCoachData(formData);
             } else {
-                // It's a File, need to upload
-                const storageRef = ref(storage, `coaches/${formData.CoachPhoto.name}`);
-                const uploadTask = uploadBytesResumable(storageRef, formData.CoachPhoto);
-
-                uploadTask.on(
-                    'state_changed',
-                    (snapshot) => {},
-                    (error) => {
-                        setUploadError('Failed to upload the coach photo.');
-                        setUploading(false);
-                    },
-                    () => {
-                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                            const updatedCoacher = { ...formData, CoachPhoto: downloadURL };
-                            submitCoachData(updatedCoacher);
-                        });
-                    }
-                );
+                // For new coach, photo is required
+                setUploadError('Please upload a coach photo.');
+                setUploading(false);
+                return;
             }
         }
-    };
+    }
+};
 
-    const submitCoachData = (coachData) => {
-        if (editingCoachId) {
-            axios.put(`http://localhost:5000/api/Coachers/${editingCoachId}`, coachData)
-                .then(() => {
-                    fetchCoachers();
-                    setIsEditModalOpen(false);
-                    setUploading(false);
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Coacher updated successfully.',
-                        icon: 'success',
-                        confirmButtonText: 'Okay',
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error updating coacher:', error);
-                    setUploading(false);
+const submitCoachData = (coachData) => {
+    console.log('Submitting coach data:', coachData);
+    
+    if (editingCoachId) {
+        // Update existing coach
+        axios.put(`http://localhost:5000/api/Coachers/${editingCoachId}`, coachData)
+            .then(() => {
+                fetchCoachers();
+                setIsEditModalOpen(false);
+                setUploading(false);
+                setStep(1);
+                setEditingCoachId(null);
+                setFormData({
+                    CoachName: '',
+                    Tel: '',
+                    TrainingType: [],
+                    Certifications: '',
+                    Experiance: '',
+                    Courts: [],
+                    CoachPhoto: null,
                 });
-        } else {
-            axios.post('http://localhost:5000/api/coachers', coachData)
-                .then(() => {
-                    fetchCoachers();
-                    toggleModal();
-                    setUploading(false);
-                    console.log(coachData);
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Coacher added successfully.',
-                        icon: 'success',
-                        confirmButtonText: 'Okay',
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error adding coacher:', error);
-                    setUploading(false);
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Coach updated successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'Okay',
                 });
-        }
-    };
+            })
+            .catch((error) => {
+                console.error('Error updating coach:', error);
+                setUploading(false);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to update the coach.',
+                    icon: 'error',
+                });
+            });
+    } else {
+        // Add new coach
+        axios.post('http://localhost:5000/api/coachers', coachData)
+            .then(() => {
+                fetchCoachers();
+                toggleModal();
+                setUploading(false);
+                console.log('Coach added:', coachData);
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Coach added successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'Okay',
+                });
+            })
+            .catch((error) => {
+                console.error('Error adding coach:', error);
+                setUploading(false);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to add the coach.',
+                    icon: 'error',
+                });
+            });
+    }
+};
 
     const handleDeleteCoacher = async (id) => {
         try {
@@ -285,17 +325,32 @@ const Coachers = () => {
                 handleCourtSelection={handleCourtSelection}
                 handleTrainingTypeChange={handleTrainingTypeChange}
             />
-            <EditCoachModal
-                isOpen={isEditModalOpen}
-                formData={formData}
-                handleChange={handleChange}
-                handleSubmit={handleSubmit}
-                toggleModal={() => setIsEditModalOpen(false)}
-                setStep={setStep}
-                courts={courts}
-                handleCourtSelection={handleCourtSelection}
-                handleTrainingTypeChange={handleTrainingTypeChange}
-            />
+         <EditCoachModal
+    isOpen={isEditModalOpen}
+    step={step}
+    formData={formData}
+    handleChange={handleChange}
+    handleSubmit={handleSubmit}
+    toggleModal={() => {
+        setIsEditModalOpen(false);
+        setStep(1);
+        setEditingCoachId(null);
+        setFormData({
+            CoachName: '',
+            Tel: '',
+            TrainingType: [],
+            Certifications: '',
+            Experiance: '',
+            Courts: [],
+            CoachPhoto: null,
+        });
+    }}
+    uploadError={uploadError}
+    setStep={setStep}
+    courts={courts}
+    handleCourtSelection={handleCourtSelection}
+    handleTrainingTypeChange={handleTrainingTypeChange}
+/>
         </div>
     );
 };

@@ -634,6 +634,8 @@ const saveEdit = async () => {
                               <div>
                                 <h3 className="font-semibold text-gray-800">{booking.userId?.name || 'User'}</h3>
                                 <p className="text-sm text-gray-600">{booking.userId?.email || 'No email provided'}</p>
+                                <p className="text-sm text-gray-600">{booking.userId?.phoneNumber || 'No Phone Number provided'}</p>
+
                               </div>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
