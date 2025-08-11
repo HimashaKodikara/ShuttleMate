@@ -23,6 +23,11 @@ const Navbar = () => {
             roles: ["admin","coach"]
         },
         {
+            href:"Users",
+            label:"Users",
+            roles:["admin"]
+        },
+        {
             href:"Coachers",
             label:"Coaches",
             roles: ["admin","coach"]

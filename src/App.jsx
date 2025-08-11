@@ -11,6 +11,7 @@ import VideoPage from './pages/VideoPage';
 import Coachers from './pages/Coachers';
 import Court from './pages/court';
 import Shop from './pages/shop';
+import Users from './pages/Users';
 import MatchTimeLine from './pages/MatchTImeLine';
 import Timeline from './pages/timeline';
 import Unauthorized from './pages/Unauthorized';
@@ -64,6 +65,14 @@ function App() {
             } 
           />
 
+      <Route 
+                  path="/Users" 
+                  element={
+                    <ProtectedRoute>
+                      <Users />
+                    </ProtectedRoute>
+                  } 
+                />
           {/* Role-specific protected routes */}
           <Route 
             path="/Coachers" 
@@ -91,6 +100,8 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          
 
           
           <Route path="*" element={<Navigate to="/home" />} />
