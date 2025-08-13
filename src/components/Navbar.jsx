@@ -46,7 +46,12 @@ const Navbar = () => {
             href:"Matchtimeline",
             label:"Match Timeline",
             roles: ["admin","coach","courtowner","shopowner"]
-        }
+        },
+         {
+            href:"payment",
+            label:"Payments",
+            roles: ["admin","shopowner"]
+        },
     ]
 
      const getVisibleNavItems = () => {

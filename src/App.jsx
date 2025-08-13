@@ -11,6 +11,7 @@ import VideoPage from './pages/VideoPage';
 import Coachers from './pages/Coachers';
 import Court from './pages/court';
 import Shop from './pages/shop';
+import Payment from './pages/payment';
 import Users from './pages/Users';
 import MatchTimeLine from './pages/MatchTImeLine';
 import Timeline from './pages/timeline';
@@ -97,6 +98,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['shopowner', 'admin']}>
                 <Shop />
+              </ProtectedRoute>
+            } 
+          />
+
+            <Route 
+            path="/payment" 
+            element={
+              <ProtectedRoute allowedRoles={['shopowner', 'admin']}>
+                <Payment />
               </ProtectedRoute>
             } 
           />
