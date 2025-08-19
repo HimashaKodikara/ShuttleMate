@@ -1,83 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import DataTable from "react-data-table-component";
 import { Trash2, Eye, DollarSign, CreditCard, Calendar, User, Package, AlertCircle, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
+const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false }) => {
     const { user } = useAuth();
     const [expandedPayment, setExpandedPayment] = useState(null);
-    const [enrichedPayments, setEnrichedPayments] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    // Function to fetch user and item details
-    const enrichPaymentsData = async (paymentsData) => {
-        try {
-            const enrichedData = await Promise.all(
-                paymentsData.map(async (payment) => {
-                    try {
-                        // Fetch user details
-                        const userResponse = await fetch(`/api/users/${payment.userId}`);
-                        const userData = userResponse.ok ? await userResponse.json() : null;
-
-                        // Fetch item details from shops
-                        const itemResponse = await fetch(`/api/shops/item/${payment.itemId}`);
-                        const itemData = itemResponse.ok ? await itemResponse.json() : null;
-
-                        return {
-                            ...payment,
-                            userName: userData?.name || 'Unknown User',
-                            userEmail: userData?.email || '',
-                            itemName: itemData?.name || 'Unknown Item',
-                            itemPrice: itemData?.price || 0,
-                            shopName: itemData?.shopName || 'Unknown Shop',
-                            itemPhoto: itemData?.itemphoto || ''
-                        };
-                    } catch (error) {
-                        console.error(`Error fetching details for payment ${payment._id}:`, error);
-                        return {
-                            ...payment,
-                            userName: 'Error Loading',
-                            userEmail: '',
-                            itemName: 'Error Loading',
-                            itemPrice: 0,
-                            shopName: 'Unknown Shop',
-                            itemPhoto: ''
-                        };
-                    }
-                })
-            );
-            return enrichedData;
-        } catch (error) {
-            console.error('Error enriching payments data:', error);
-            return paymentsData.map(payment => ({
-                ...payment,
-                userName: 'Error Loading',
-                userEmail: '',
-                itemName: 'Error Loading',
-                itemPrice: 0,
-                shopName: 'Unknown Shop',
-                itemPhoto: ''
-            }));
-        }
-    };
-
-    // Effect to enrich payments data when payments prop changes
-    useEffect(() => {
-        const loadEnrichedData = async () => {
-            if (payments.length > 0) {
-                setLoading(true);
-                const enrichedData = await enrichPaymentsData(payments);
-                setEnrichedPayments(enrichedData);
-                setLoading(false);
-            } else {
-                setEnrichedPayments([]);
-                setLoading(false);
-            }
-        };
-
-        loadEnrichedData();
-    }, [payments]);
 
     const toggleExpand = (paymentId) => {
         setExpandedPayment(expandedPayment === paymentId ? null : paymentId);
@@ -148,38 +77,28 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
         },
         {
             name: 'Customer',
-            selector: row => row.userName,
+            selector: row => row.userName || 'Unknown User',
             sortable: true,
             cell: row => (
                 <div className="flex flex-col">
-                    <span className="font-medium text-gray-900">{row.userName}</span>
-                    <span className="text-xs text-gray-500">{row.userEmail}</span>
-                    <span className="font-mono text-xs text-gray-400">
-                        ID: {row.userId.substring(0, 8)}...
-                    </span>
+                    <span className="font-medium text-gray-900"> {row.userId ? row.userId : 'N/A'}</span>
+                    
                 </div>
             ),
         },
         {
             name: 'Item',
-            selector: row => row.itemName,
+            selector: row => row.itemName || 'Unknown Item',
             sortable: true,
             cell: row => (
                 <div className="flex items-center space-x-3">
-                    {row.itemPhoto && (
-                        <img 
-                            src={row.itemPhoto} 
-                            alt={row.itemName}
-                            className="w-10 h-10 rounded object-cover"
-                            onError={(e) => {e.target.style.display = 'none'}}
-                        />
-                    )}
+                   
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{row.itemName}</span>
-                        <span className="text-xs text-gray-500">{row.shopName}</span>
-                        <span className="font-mono text-xs text-gray-400">
-                            ID: {row.itemId.substring(0, 8)}...
-                        </span>
+                        <span className="font-medium text-gray-900"> {row.itemId ? row.itemId.toString() : 'N/A'}</span>
+                        {row.quantity && (
+                            <span className="text-xs text-blue-600">Qty: {row.quantity}</span>
+                        )}
+                       
                     </div>
                 </div>
             ),
@@ -209,17 +128,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
                 </div>
             ),
         },
-        {
-            name: 'Date',
-            selector: row => row.createdAt,
-            sortable: true,
-            center: true,
-            cell: row => (
-                <span className="text-sm text-gray-600">
-                    {formatDate(row.createdAt)}
-                </span>
-            ),
-        },
+       
         {
             name: 'View Details',
             cell: row => (
@@ -280,7 +189,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
     const customStyles = {
         headRow: {
             style: {
-                backgroundColor: '#1e3a8a', // Blue-900
+                backgroundColor: '#1e3a8a', 
                 color: 'white',
             },
         },
@@ -319,7 +228,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
     const LoadingComponent = () => (
         <div className="flex flex-col items-center justify-center py-8">
             <RefreshCw size={48} className="text-gray-400 mb-4 animate-spin" />
-            <p className="text-gray-500">Loading payment details...</p>
+            <p className="text-gray-500">Loading payments...</p>
         </div>
     );
 
@@ -343,9 +252,8 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
                             <User size={20} className="text-green-500" />
                             <div>
                                 <span className="font-medium">Customer:</span>
-                                <p className="text-gray-800 font-semibold">{data.userName}</p>
-                                <p className="text-gray-600 text-sm">{data.userEmail}</p>
-                                <p className="text-gray-500 text-xs font-mono">ID: {data.userId}</p>
+                                <p className="text-gray-800 font-semibold">{data.userId || 'N/A'}</p>
+                               
                             </div>
                         </div>
 
@@ -354,18 +262,10 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
                             <div>
                                 <span className="font-medium">Item:</span>
                                 <div className="flex items-center space-x-2 mt-1">
-                                    {data.itemPhoto && (
-                                        <img 
-                                            src={data.itemPhoto} 
-                                            alt={data.itemName}
-                                            className="w-12 h-12 rounded object-cover"
-                                            onError={(e) => {e.target.style.display = 'none'}}
-                                        />
-                                    )}
+                                    
                                     <div>
-                                        <p className="text-gray-800 font-semibold">{data.itemName}</p>
-                                        <p className="text-gray-600 text-sm">Shop: {data.shopName}</p>
-                                        <p className="text-gray-500 text-xs font-mono">ID: {data.itemId}</p>
+                                        <p className="text-gray-800 font-semibold">ID: {data.itemId || 'N/A'}</p>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -378,6 +278,11 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
                                 <p className="text-gray-600 font-semibold text-lg">
                                     {formatCurrency(data.amount, data.currency)}
                                 </p>
+                                {data.itemPrice && (
+                                    <p className="text-gray-500 text-sm">
+                                        Item Price: {formatCurrency(data.itemPrice, data.currency)}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -388,14 +293,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
                                 <p className={`inline-block ml-2 px-2 py-1 rounded text-sm font-medium ${getStatusColor(data.status)}`}>
                                     {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
                                 </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3">
-                            <span className="text-gray-500">💱</span>
-                            <div>
-                                <span className="font-medium">Currency:</span>
-                                <p className="text-gray-600 font-mono">{data.currency}</p>
                             </div>
                         </div>
 
@@ -414,24 +311,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
                                 </p>
                             </div>
                         </div>
-
-                        {data.updatedAt && data.updatedAt !== data.createdAt && (
-                            <div className="flex items-center space-x-3">
-                                <Calendar size={20} className="text-orange-500" />
-                                <div>
-                                    <span className="font-medium">Updated:</span>
-                                    <p className="text-gray-600">
-                                        {new Date(data.updatedAt).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
                     {data.metadata && Object.keys(data.metadata).length > 0 && (
@@ -521,7 +400,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
             <div className="overflow-hidden rounded-lg shadow-xl">
                 <DataTable
                     columns={columns}
-                    data={enrichedPayments}
+                    data={payments}
                     pagination
                     paginationPerPage={10}
                     paginationRowsPerPageOptions={[5, 10, 15, 20]}
@@ -545,7 +424,8 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus }) => {
 PaymentTable.propTypes = {
     payments: PropTypes.array,
     onDelete: PropTypes.func.isRequired,
-    onUpdateStatus: PropTypes.func // Optional function to update payment status
+    onUpdateStatus: PropTypes.func, // Optional function to update payment status
+    loading: PropTypes.bool
 };
 
 export default PaymentTable;
