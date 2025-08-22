@@ -10,8 +10,8 @@ const CoachModal = ({
   toggleModal,
   uploadError,
   setStep,
-  courts = [], // Use the courts passed from parent component
-  handleCourtSelection, // Use the handler passed from parent
+  courts = [], 
+  handleCourtSelection, 
   handleTrainingTypeChange
 }) => {
   const [loading, setLoading] = useState(false);
@@ -25,8 +25,7 @@ const CoachModal = ({
       
       axios.get('http://localhost:5000/api/courts/')
         .then(response => {
-          //console.log("Courts API response:", response.data);
-          // No need for this if courts are passed as props
+       
           setLoading(false);
         })
         .catch(error => {
@@ -42,10 +41,9 @@ const CoachModal = ({
   // Use the handler passed from parent component or the local one
   const handleCourtCheckboxChange = (courtId) => {
     if (handleCourtSelection) {
-      // If parent provides a handler, use it
+      
       const updatedCourts = Array.isArray(formData.Courts) ? [...formData.Courts] : [];
       
-      // Toggle court selection
       const newCourts = updatedCourts.includes(courtId)
         ? updatedCourts.filter(id => id !== courtId)
         : [...updatedCourts, courtId];
@@ -56,7 +54,6 @@ const CoachModal = ({
         }
       });
     } else {
-      // Fallback to local implementation
       const currentCourts = Array.isArray(formData.Courts) ? [...formData.Courts] : [];
       
       const updatedCourts = currentCourts.includes(courtId)

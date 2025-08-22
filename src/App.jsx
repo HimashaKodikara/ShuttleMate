@@ -16,6 +16,7 @@ import Users from './pages/Users';
 import MatchTimeLine from './pages/MatchTImeLine';
 import Timeline from './pages/timeline';
 import Unauthorized from './pages/Unauthorized';
+import News from './pages/News';
 
 function App() {
   return (
@@ -53,6 +54,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Timeline />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/News" 
+            element={
+              <ProtectedRoute>
+                <News />
               </ProtectedRoute>
             } 
           />

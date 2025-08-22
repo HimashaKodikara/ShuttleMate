@@ -47,6 +47,11 @@ const Navbar = () => {
             label:"Match Timeline",
             roles: ["admin","coach","courtowner","shopowner"]
         },
+        {
+            href:"News",
+            label:"News",
+            roles: ["admin","coach","courtowner","shopowner"]
+        },
          {
             href:"payment",
             label:"Payments",
@@ -105,7 +110,7 @@ const Navbar = () => {
                             <a 
                                 key={index}
                                 href={item.href} 
-                                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-3 py-2 rounded-md hover:bg-gray-50"
+                                className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 px-1 py-2 rounded-md hover:bg-gray-50"
                             >
                                 {item.label}
                             </a>
