@@ -31,18 +31,14 @@ const Home = () => {
         items: 'http://localhost:5000/api/items'
       };
 
-      // Function to extract count from different response formats
       const getCount = (data, key) => {
-        // If data is directly an array
         if (Array.isArray(data)) {
           return data.length;
         }
         
-        // If data has explicit count/total properties
         if (data.count !== undefined) return data.count;
         if (data.total !== undefined) return data.total;
         
-        // Handle specific API response formats
         switch(key) {
           case 'coaches':
             return Array.isArray(data.coachers) ? data.coachers.length : 0;
@@ -82,7 +78,6 @@ const Home = () => {
 
       const results = await Promise.all(promises);
       
-      // Update state with fetched data
       const newData = { loading: false, error: null };
       results.forEach(({ key, count }) => {
         switch(key) {
@@ -186,7 +181,6 @@ const Home = () => {
     { id: 5, user: 'Michael Brown', action: 'completed session', time: '15 min ago', type: 'session' }
   ];
 
-  // Show error state if needed
   if (apiData.error) {
     return (
       <div className="min-h-screen bg-gray-50">

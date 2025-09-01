@@ -23,7 +23,6 @@ const Users = () => {
             
             const data = await response.json();
             
-            // Handle different API response structures
             if (Array.isArray(data)) {
                 setUsers(data);
             } else if (data.users && Array.isArray(data.users)) {
@@ -42,12 +41,10 @@ const Users = () => {
         }
     };
 
-    // Fetch users on component mount
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    // Handle delete user
     const handleDeleteUser = async (userId) => {
         const result = await Swal.fire({
             title: 'Are you sure?',
@@ -79,7 +76,6 @@ const Users = () => {
             // Remove user from local state
             setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
             
-            // Show success message
             Swal.fire({
                 title: 'Deleted!',
                 text: 'User has been deleted successfully.',
@@ -100,8 +96,7 @@ const Users = () => {
     // Handle edit user (placeholder - you can implement edit modal/form)
     const handleEditUser = (user) => {
         console.log('Edit user:', user);
-        // TODO: Implement edit functionality
-        // This could open a modal, navigate to edit page, etc.
+       
         Swal.fire({
             title: 'Edit User',
             text: `Edit functionality for ${user.firstName} ${user.lastName} - To be implemented`,
@@ -110,12 +105,10 @@ const Users = () => {
         });
     };
 
-    // Handle refresh
     const handleRefresh = () => {
         fetchUsers();
     };
 
-    // Loading state
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">
@@ -125,7 +118,6 @@ const Users = () => {
         );
     }
 
-    // Error state
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">

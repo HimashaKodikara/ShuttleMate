@@ -24,7 +24,6 @@ const News = () => {
     const [step, setStep] = useState(1);
     const [editingNewsId, setEditingNewsId] = useState(null);
 
-    // Fetch all news from API
     const fetchNews = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/news');
@@ -40,22 +39,20 @@ const News = () => {
         }
     };
 
-    // Fetch news by ID for editing
     const fetchNewsById = async (id) => {
         try {
             const response = await axios.get(`http://localhost:5000/api/news/${id}`);
             const newsData = response.data.news || response.data;
             
-            // Format time for datetime-local input
             const formattedTime = newsData.time ? 
                 new Date(newsData.time).toISOString().slice(0, 16) : '';
             
             setFormData({
                 ...newsData,
                 time: formattedTime,
-                newsImage: null // Reset file input
+                newsImage: null 
             });
-            setStep(1); // Start from first step for editing
+            setStep(1); 
             setEditingNewsId(id);
             setIsEditModalOpen(true);
         } catch (error) {
@@ -72,7 +69,6 @@ const News = () => {
         fetchNews();
     }, []);
 
-    // Handle input changes
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
@@ -81,7 +77,6 @@ const News = () => {
         }));
     };
 
-    // Toggle Add Modal
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setStep(1);
@@ -96,7 +91,6 @@ const News = () => {
         });
     };
 
-    // Toggle Edit Modal
     const toggleEditModal = () => {
         setIsEditModalOpen(!isEditModalOpen);
         setStep(1);
@@ -111,7 +105,6 @@ const News = () => {
         });
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -124,7 +117,6 @@ const News = () => {
             try {
                 let newsImageURL = formData.newsImage;
 
-                // Upload image to Firebase if a new image is selected
                 if (formData.newsImage && typeof formData.newsImage === 'object') {
                     const storageRef = ref(storage, `news/${Date.now()}_${formData.newsImage.name}`);
                     const uploadTask = uploadBytesResumable(storageRef, formData.newsImage);
@@ -133,7 +125,6 @@ const News = () => {
                         uploadTask.on(
                             'state_changed',
                             (snapshot) => {
-                                // Progress tracking could be added here
                             },
                             (error) => {
                                 setUploadError('Failed to upload the news image.');
@@ -161,7 +152,6 @@ const News = () => {
                 };
 
                 if (editingNewsId) {
-                    // Update existing news
                     await axios.put(`http://localhost:5000/api/news/${editingNewsId}`, newsData);
                     Swal.fire({
                         title: 'Success!',
@@ -171,7 +161,6 @@ const News = () => {
                     });
                     setIsEditModalOpen(false);
                 } else {
-                    // Create new news
                     await axios.post('http://localhost:5000/api/news', newsData);
                     Swal.fire({
                         title: 'Success!',
@@ -199,7 +188,6 @@ const News = () => {
         }
     };
 
-    // Handle edit form submission from table
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         
@@ -212,7 +200,6 @@ const News = () => {
             try {
                 let newsImageURL = formData.newsImage;
 
-                // Upload image to Firebase if a new image is selected
                 if (formData.newsImage && typeof formData.newsImage === 'object') {
                     const storageRef = ref(storage, `news/${Date.now()}_${formData.newsImage.name}`);
                     const uploadTask = uploadBytesResumable(storageRef, formData.newsImage);
@@ -275,7 +262,6 @@ const News = () => {
 
     // Delete news by ID
     const handleDeleteNews = async (id) => {
-        // Check if news exists
         if (!news.find(item => item._id === id)) {
             Swal.fire({
                 title: "Error!",
@@ -357,7 +343,6 @@ const News = () => {
                 onEdit={fetchNewsById}
             />
             
-            {/* Add News Modal */}
             <NewsModal
                 isOpen={isModalOpen}
                 step={step}
@@ -369,7 +354,6 @@ const News = () => {
                 setStep={setStep}
             />
             
-            {/* Edit News Modal */}
             <EditNewsModal
                 isOpen={isEditModalOpen}
                 step={step}

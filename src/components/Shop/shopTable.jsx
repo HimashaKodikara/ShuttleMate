@@ -16,7 +16,7 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
     };
 
     const fetchItemsForCategory = async (categoryId) => {
-        if (categoryItems[categoryId]) return; // Avoid fetching again if data already exists
+        if (categoryItems[categoryId]) return; 
 
         try {
             const response = await fetch(`http://localhost:5000/api/items/category/${categoryId}`);
@@ -120,12 +120,11 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
 
      const isAdmin = user?.role === 'admin';
     
-    // Conditionally add delete column based on admin status
     const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
     const customStyles = {
         headRow: {
             style: {
-                backgroundColor: '#1e3a8a', // Blue-900
+                backgroundColor: '#1e3a8a', 
                 color: 'white',
             },
         },
@@ -133,7 +132,6 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
             style: {
                 justifyContent: 'center',
                 fontSize: '14px',
-               // fontWeight: 'bold',
                 padding: '16px',
                 borderBottom: '1px solid #2d3748',
             },
@@ -150,7 +148,6 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
         },
     };
 
-    // Custom component that renders nothing when there's no data
     const NoDataComponent = () => <div></div>;
 
     const ExpandedComponent = ({ data }) => (
@@ -221,12 +218,10 @@ const ShopDataTable = ({ shops = [], onDelete, onAddItem, onEdit }) => {
         </div>
     );
 
-    // Use expandOnRowClicked to show the expanded component when a row is clicked
     const conditionalRowStyles = [
         {
             when: row => expandedShop === row._id,
             style: {
-                // Slate-800
             },
         },
     ];

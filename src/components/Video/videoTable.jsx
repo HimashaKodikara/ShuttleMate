@@ -54,23 +54,7 @@ const VideoTable = ({ videos, onDeleteVideo, onEditVideo }) => {
             button: true,
             center: true,
         },
-        // {
-        //     name: 'Delete',
-        //     cell: (row) => (
-        //         <div className="flex justify-center w-full">
-        //             <button
-        //                 onClick={() => onDeleteVideo(row._id)}
-        //                 className="flex items-center justify-center w-10 h-10 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
-        //             >
-        //                 <Trash2 size={18} />
-        //             </button>
-        //         </div>
-        //     ),
-        //     ignoreRowClick: true,
-        //     allowOverflow: true,
-        //     button: true,
-        //     center: true,
-        // },
+        
     ];
 
       const deleteColumn = {
@@ -103,8 +87,7 @@ const VideoTable = ({ videos, onDeleteVideo, onEditVideo }) => {
                         style: {
                             backgroundColor: '#1e3a8a',
                             color: 'white',
-                          //  fontWeight: 'bold',
-                            justifyContent: 'center', // Center header text
+                            justifyContent: 'center', 
                             textAlign: 'center',
                             fontSize: '14px',
                         },
@@ -112,7 +95,7 @@ const VideoTable = ({ videos, onDeleteVideo, onEditVideo }) => {
                     cells: {
                         style: {
                             padding: '0.5rem',
-                            justifyContent: 'center', // Center cell content
+                            justifyContent: 'center', 
                         },
                     },
                 }}

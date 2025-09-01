@@ -13,7 +13,6 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
     const [selectedCourt, setSelectedCourt] = useState(null);
     const [step, setStep] = useState(1);
 
-    // Ensure onDelete and onUpdate are functions to prevent errors
     const safeOnDelete = typeof onDelete === 'function' ? onDelete : () => console.warn('onDelete is not a function');
     const safeOnUpdate = typeof onUpdate === 'function' ? onUpdate : () => console.warn('onUpdate is not a function');
 
@@ -108,7 +107,6 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
     
          const isAdmin = user?.role === 'admin';
         
-        // Conditionally add delete column based on admin status
         const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
     const closeModal = () => {
         setModalOpen(false);
@@ -136,8 +134,7 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
                         style: {
                             backgroundColor: '#1e3a8a',
                             color: 'white',
-                           // fontWeight: 'bold',
-                            justifyContent: 'center', // Center header text
+                            justifyContent: 'center', 
                             textAlign: 'center',
                             fontSize: '14px',
                         },
@@ -145,7 +142,7 @@ const CourtTable = ({ courts = [], onDelete, onUpdate }) => {
                     cells: {
                         style: {
                             padding: '0.5rem',
-                            justifyContent: 'center', // Center cell content
+                            justifyContent: 'center', 
                         },
                     },
                 }}
@@ -211,7 +208,7 @@ CourtTable.propTypes = {
                     latitude: PropTypes.string,
                     longitude: PropTypes.string,
                 })
-            ), // Made optional to prevent warnings
+            ), 
         })
     ).isRequired,
     onDelete: PropTypes.func.isRequired,

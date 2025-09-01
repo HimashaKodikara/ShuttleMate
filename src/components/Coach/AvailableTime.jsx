@@ -9,7 +9,7 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeView, setActiveView] = useState('availability'); // 'availability' or 'bookings'
+  const [activeView, setActiveView] = useState('availability'); 
 
   const [newSlot, setNewSlot] = useState({
     dayOfWeek: 0,
@@ -90,7 +90,6 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
       const data = await response.json();
 
       if (data.success) {
-        // Update the booking in the local state
         setBookings(bookings.map(booking =>
           booking._id === bookingId ? { ...booking, status } : booking
         ));
@@ -247,16 +246,14 @@ const AvailableTime = ({ isOpen, coachId, coachName, onClose }) => {
     return grouped;
   };
 
-  // Helper function to safely get user data
   const getUserData = (booking) => {
     if (!booking.userId) return null;
     
-    // Handle both populated and non-populated userId
     if (typeof booking.userId === 'object') {
-      return booking.userId; // Already populated
+      return booking.userId; 
     }
     
-    return null; // Not populated, just an ID
+    return null; 
   };
 
   const pendingBookingsCount = bookings.filter(booking => booking.status === 'pending').length;

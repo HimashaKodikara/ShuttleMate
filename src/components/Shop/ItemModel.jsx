@@ -20,7 +20,6 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
     const [error, setError] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
 
-    // Set shopName when selectedShop changes
     React.useEffect(() => {
         if (selectedShop) {
             setItemDetails(prev => ({
@@ -62,12 +61,10 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                 categoryId: selectedCategory._id
             };
 
-            // If there's a photo to upload, handle it first
             if (itemDetails.itemphoto) {
                 const storageRef = ref(storage, `items/${selectedShop._id}/${selectedCategory._id}/${Date.now()}_${itemDetails.itemphoto.name}`);
                 const uploadTask = uploadBytesResumable(storageRef, itemDetails.itemphoto);
                 
-                // Monitor upload progress
                 uploadTask.on(
                     'state_changed', 
                     (snapshot) => {
@@ -79,19 +76,15 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
                         setLoading(false);
                     },
                     async () => {
-                        // Get the download URL after upload completes
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         setPhotoURL(downloadURL);
                         
-                        // Add the photo URL to the item data
                         finalItemData.itemphoto = downloadURL;
                         
-                        // Now submit the item with the photo URL
                         submitItemToAPI(finalItemData);
                     }
                 );
             } else {
-                // No photo to upload, submit the item data directly
                 submitItemToAPI(finalItemData);
             }
         } catch (err) {
@@ -104,7 +97,6 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
         try {
             console.log(itemData);
             console.log(selectedCategory._id);
-            // Make the API call to add the item
             const response = await axios.post(
                 `http://localhost:5000/api/shops/shop/${selectedShop._id}/categories/${selectedCategory._id}/items`,
                 itemData,
@@ -116,10 +108,8 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
             );  
             console.log(itemData);
             
-            // Call the parent component's callback with the new item
             onAddItem(response.data);
             
-            // Reset the form
             setItemDetails({
                 name: '',
                 price: '',
@@ -134,10 +124,8 @@ const ItemModal = ({ isOpen, onClose, onAddItem, selectedShop, selectedCategory 
             setPhotoURL('');
             setUploadProgress(0);
             
-            // Close the modal
             onClose();
             
-            // Refresh the page after a short delay to allow server processing
             setTimeout(() => {
                 window.location.reload();
             }, 500);

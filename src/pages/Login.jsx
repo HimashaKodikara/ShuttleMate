@@ -13,7 +13,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { customLogin, isAuthenticated } = useAuth();
 
-  // Redirect if already authenticated
   if (isAuthenticated) {
     return <Navigate to="/home" replace />;
   }
@@ -70,7 +69,6 @@ const Login = () => {
           email: data.data.user?.email
         };
 
-        // Use the customLogin method from AuthContext
         customLogin(userData, data.data.token);
 
         Swal.fire({
@@ -80,7 +78,6 @@ const Login = () => {
           confirmButtonText: 'Okay',
         });
 
-        // Navigate based on role
         const userRole = userData.role;
         switch (userRole) {
           case 'admin':

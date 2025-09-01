@@ -20,7 +20,6 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
     const [changingThumbnail, setChangingThumbnail] = useState(false);
     const [changingCreatorPhoto, setChangingCreatorPhoto] = useState(false);
 
-    // Initialize form data when videoData changes
     useEffect(() => {
         if (videoData) {
             setFormData({
@@ -67,7 +66,6 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
-                    // Update the appropriate progress state based on file type
                     if (filetype === 'videoFile') {
                         setUploadProgress(Math.round(progress));
                     } else if (filetype === 'thumbnail') {
@@ -86,7 +84,6 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         console.log(`${filetype} URL:`, downloadURL);
 
-                        // Ensure progress shows as complete
                         if (filetype === 'videoFile') {
                             setUploadProgress(100);
                         } else if (filetype === 'thumbnail') {
@@ -120,22 +117,18 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
             let thumbnailURL = formData.currentImgUrl;
             let creatorPhotoURL = formData.currentCreatorPhotoUrl;
 
-            // Only upload new video if provided
             if (changingVideo && formData.videoFile) {
                 videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
             }
 
-            // Only upload new thumbnail if provided
             if (changingThumbnail && formData.thumbnail) {
                 thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
             }
             
-            // Only upload new creator photo if provided
             if (changingCreatorPhoto && formData.videoCreatorPhoto) {
                 creatorPhotoURL = await uploadFile(formData.videoCreatorPhoto, 'creatorPhotos', 'creatorPhoto');
             }
 
-            // Send PUT request to update the video
             const response = await axios.put(`http://localhost:5000/api/videos/video/${videoData._id}`, {
                 videoUrl: videoURL,
                 imgUrl: thumbnailURL,
@@ -144,8 +137,8 @@ const EditVideoModal = ({ isOpen, onClose, onSuccess, videoData }) => {
                 videoCreatorPhotoUrl: creatorPhotoURL,
             });
 
-            onSuccess(); // Refresh video list after update
-            onClose(); // Close modal
+            onSuccess(); 
+            onClose(); 
         } catch (error) {
             console.error('Error updating video:', error);
             setUploadError('An error occurred while updating the video. Please try again.');

@@ -35,7 +35,6 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
-                    // Update the appropriate progress state based on file type
                     if (filetype === 'videoFile') {
                         setUploadProgress(Math.round(progress));
                     } else if (filetype === 'thumbnail') {
@@ -54,7 +53,6 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         console.log(`${filetype} URL:`, downloadURL);
 
-                        // Ensure progress shows as complete
                         if (filetype === 'videoFile') {
                             setUploadProgress(100);
                         } else if (filetype === 'thumbnail') {
@@ -83,20 +81,17 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
         setCreatorPhotoProgress(0);
 
         try {
-            // Validate if files are uploaded
             if (!formData.videoFile || !formData.thumbnail) {
                 setUploadError('Please upload both video and thumbnail.');
                 return;
             }
 
-            // Upload video and thumbnail
             const videoURL = await uploadFile(formData.videoFile, 'videos', 'videoFile');
             const thumbnailURL = await uploadFile(formData.thumbnail, 'thumbnails', 'thumbnail');
             
            
             const creatorPhotoURL = await uploadFile(formData.videoCreatorPhoto, 'creatorPhotos', 'creatorPhoto');
             
-            // Send POST request to the backend
             const response = await axios.post(`http://localhost:5000/api/videos/`, {
                 videoUrl: videoURL,
                 imgUrl: thumbnailURL,
@@ -113,8 +108,8 @@ const videoModel = ({ isOpen, onClose, onSuccess }) => {
                 videoFile: null, 
                 thumbnail: null 
             });
-            onSuccess(); // Refresh video list after upload
-            onClose(); // Close modal
+            onSuccess(); 
+            onClose();
         } catch (error) {
             console.error('Error uploading or saving video:', error);
             setUploadError('An error occurred while saving the video. Please try again.');

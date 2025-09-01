@@ -24,7 +24,6 @@ const ShopModal = ({
                 <h2 className="mb-4 text-2xl font-bold text-center">Add New Shop</h2>
                 <form onSubmit={handleSubmit}>
                     {step === 1 ? (
-                        // Step 1: Basic Shop Info
                         <>
                             <div className="mb-4">
                                 <label className="block mb-2 font-semibold">Shop Name</label>
@@ -87,7 +86,6 @@ const ShopModal = ({
                             </div>
                         </>
                     ) : step === 2 ? (
-                        // Step 2: Categories
                         <>
                             <h3 className="mb-2 font-semibold">Shop Categories</h3>
                             <div className="p-2 mb-4 overflow-y-auto border border-gray-300 rounded max-h-96">
@@ -134,7 +132,6 @@ const ShopModal = ({
                             </div>
                         </>
                     ) : (
-                        // Step 3: Brands
                         <>
                             <h3 className="mb-2 font-semibold">Shop Brands</h3>
                             <div className="p-2 mb-4 overflow-y-auto rounded max-h-96">

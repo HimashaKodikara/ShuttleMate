@@ -70,7 +70,7 @@ const NewsTable = ({ news = [], onDelete, onUpdate }) => {
                         onClick={() => {
                             setSelectedNews(row);
                             setEditModalOpen(true);
-                            setStep(1); // Reset to first step
+                            setStep(1); 
                         }}
                         title="Edit News"
                     >
@@ -109,7 +109,6 @@ const NewsTable = ({ news = [], onDelete, onUpdate }) => {
 
     const isAdmin = user?.role === 'admin';
 
-    // Conditionally add delete column based on admin status
     const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
 
     const closeEditModal = () => {

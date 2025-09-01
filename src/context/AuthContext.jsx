@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for custom user data in localStorage
     const checkCustomAuth = () => {
       try {
         const token = localStorage.getItem('token');
@@ -39,38 +38,32 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setCurrentUser(firebaseUser);
       if (!firebaseUser) {
-        checkCustomAuth(); // Only check custom auth if no Firebase user
+        checkCustomAuth(); 
       }
       setLoading(false);
     });
 
-    // Check custom auth on initial load
     checkCustomAuth();
 
     return unsubscribe;
   }, []);
 
-  // Custom login function for non-Firebase authentication
   const customLogin = (userData, token) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setCustomUser(userData);
   };
 
-  // Logout function for both Firebase and custom auth
   const logout = () => {
-    // Clear custom auth
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setCustomUser(null);
     
-    // Firebase logout (if user is signed in with Firebase)
     if (currentUser) {
       auth.signOut();
     }
   };
 
-  // Determine the active user and their role
   const getActiveUser = () => {
     if (customUser) {
       return {
@@ -83,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       return {
         username: currentUser.displayName || currentUser.email,
         email: currentUser.email,
-        role: 'user', // Default role for Firebase users
+        role: 'user', 
         isCustomAuth: false
       };
     }
@@ -95,9 +88,9 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!(currentUser || customUser);
 
   const value = {
-    currentUser, // Firebase user
-    customUser,  // Custom authenticated user
-    user: activeUser, // Active user (either Firebase or custom)
+    currentUser, 
+    customUser, 
+    user: activeUser, 
     isAuthenticated,
     loading,
     customLogin,

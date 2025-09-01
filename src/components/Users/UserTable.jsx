@@ -23,7 +23,7 @@ const UserTable = ({ users = [], onDelete, onEdit }) => {
         {
             name: 'Email',
             selector: row => row.email,
-            sortable: false, // Removed sorting to eliminate dropdown icon
+            sortable: false, 
             center: true,
         },
         {
@@ -92,13 +92,12 @@ const UserTable = ({ users = [], onDelete, onEdit }) => {
 
     const isAdmin = user?.role === 'admin';
     
-    // Conditionally add delete column based on admin status
     const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
 
     const customStyles = {
         headRow: {
             style: {
-                backgroundColor: '#1e3a8a', // Blue-900
+                backgroundColor: '#1e3a8a', 
                 color: 'white',
             },
         },
@@ -124,7 +123,6 @@ const UserTable = ({ users = [], onDelete, onEdit }) => {
         },
     };
 
-    // Custom component that renders nothing when there's no data
     const NoDataComponent = () => (
         <div className="flex flex-col items-center justify-center py-8">
             <User size={48} className="text-gray-400 mb-4" />
@@ -220,7 +218,6 @@ const UserTable = ({ users = [], onDelete, onEdit }) => {
         </div>
     );
 
-    // Conditional row styles for expanded rows
     const conditionalRowStyles = [
         {
             when: row => expandedUser === row._id,
@@ -245,7 +242,7 @@ const UserTable = ({ users = [], onDelete, onEdit }) => {
                     onRowExpandToggled={(expanded, row) => toggleExpand(row._id)}
                     customStyles={customStyles}
                     conditionalRowStyles={conditionalRowStyles}
-                    defaultSortFieldId={2} // Sort by name by default
+                    defaultSortFieldId={2} 
                     highlightOnHover
                     responsive
                     noDataComponent={<NoDataComponent />}

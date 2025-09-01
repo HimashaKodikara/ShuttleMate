@@ -10,9 +10,7 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
     Weblink: '',
   });
   
-  // For file preview
   const [filePreview, setFilePreview] = useState(null);
-  // To store the actual file object
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
@@ -63,17 +61,14 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
       const response = await fetch('http://localhost:5000/api/matches/');
       if (response.ok) {
         const data = await response.json();
-        // Ensure data is an array before setting it
         setMatches(Array.isArray(data) ? data : []);
         
-        // Debug log to see what's coming from the API
         console.log('API response data:', data);
       } else {
         throw new Error('Failed to fetch matches');
       }
     } catch (error) {
       console.error('Error fetching matches:', error);
-      // Initialize as empty array on error
       setMatches([]);
       Swal.fire({
         icon: 'error',
@@ -88,10 +83,8 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Create a data object with the form data and the file if present
     const dataToSave = {
       ...formData,
-      // If there's a new file selected, pass it for upload
       MatchPhotoFile: selectedFile
     };
     
@@ -123,11 +116,9 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
                 />
               </div>
               
-              {/* Preview Image */}
-             
+           
             </div>
             
-            {/* Match Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Match Name
@@ -142,7 +133,6 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
               />
             </div>
             
-            {/* Start Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Start Date
@@ -157,7 +147,6 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
               />
             </div>
             
-            {/* End Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 End Date
@@ -172,7 +161,6 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
               />
             </div>
             
-            {/* Web Link */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Web Link
@@ -186,7 +174,6 @@ const MatchesModal = ({ isOpen, onClose, match, onSave, uploading }) => {
               />
             </div>
             
-            {/* Action Buttons */}
             <div className="flex justify-end pt-4 space-x-3">
               <button
                 type="button"

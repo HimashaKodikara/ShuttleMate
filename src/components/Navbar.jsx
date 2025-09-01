@@ -137,13 +137,11 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Menu Button (you can expand this later) */}
           <div className="md:hidden px-6 pb-3">
                 <div className="flex flex-col space-y-2">
                     <button className="text-gray-700 hover:text-blue-600 font-medium text-left">
                         Menu
                     </button>
-                    {/* Mobile menu items can be expanded here with same role filtering */}
                     <div className="hidden flex-col space-y-2 pl-4" id="mobile-menu">
                         {visibleNavItems.map((item, index) => (
                             <a

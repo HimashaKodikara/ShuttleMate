@@ -12,7 +12,6 @@ const VideoPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedVideo, setSelectedVideo] = useState(null);
 
-    // Fetch videos from the backend
     const fetchVideos = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/videos');
@@ -24,7 +23,7 @@ const VideoPage = () => {
     };
 
     useEffect(() => {
-        fetchVideos(); // Call the function when the component mounts
+        fetchVideos(); 
     }, []);
 
     const toggleUploadModal = () => {
@@ -66,7 +65,7 @@ const VideoPage = () => {
 
             if (result.isConfirmed) {
                 await axios.delete(`http://localhost:5000/api/videos/${id}`);
-                setVideos((prevVideos) => prevVideos.filter(video => video._id !== id)); // Update state
+                setVideos((prevVideos) => prevVideos.filter(video => video._id !== id)); 
                 Swal.fire({
                     title: "Deleted!",
                     text: "Video has been deleted.",
@@ -97,14 +96,12 @@ const VideoPage = () => {
                 </button>
             </div>
 
-            {/* Video Table Component */}
             <VideoTable 
                 videos={videos} 
                 onDeleteVideo={handleDeleteVideo} 
                 onEditVideo={openEditModal}
             />
 
-            {/* Video Upload Modal Component */}
             {isUploadModalOpen && (
                 <VideoUploadModal 
                     isOpen={isUploadModalOpen}
@@ -113,7 +110,6 @@ const VideoPage = () => {
                 />
             )}
 
-            {/* Video Edit Modal Component */}
             {isEditModalOpen && selectedVideo && (
                 <EditVideoModal 
                     isOpen={isEditModalOpen}

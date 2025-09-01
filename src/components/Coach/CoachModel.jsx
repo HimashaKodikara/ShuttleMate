@@ -17,7 +17,6 @@ const CoachModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Only fetch courts if they aren't provided as props
   useEffect(() => {
     if (isOpen && courts.length === 0) {
       setLoading(true);
@@ -38,7 +37,6 @@ const CoachModal = ({
 
   if (!isOpen) return null;
 
-  // Use the handler passed from parent component or the local one
   const handleCourtCheckboxChange = (courtId) => {
     if (handleCourtSelection) {
       
@@ -69,7 +67,6 @@ const CoachModal = ({
     }
   };
 
-  // Use the handler passed from parent component or use local impl
   const localHandleTrainingTypeChange = (e) => {
     if (handleTrainingTypeChange) {
       handleTrainingTypeChange(e);
@@ -88,8 +85,7 @@ const CoachModal = ({
     }
   };
 
-  //console.log("Available courts:", courts);
-  //console.log("Current formData:", formData);
+ 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
@@ -138,7 +134,7 @@ const CoachModal = ({
                   <label className="block mb-2 font-semibold">Experience</label>
                   <input
                     type="number"
-                    name="Experiance" // Match the spelling in your schema
+                    name="Experiance" 
                     value={formData.Experiance || ''}
                     onChange={handleChange}
                     required

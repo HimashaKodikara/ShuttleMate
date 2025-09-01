@@ -21,13 +21,11 @@ const Payments = () => {
         totalRevenue: 0
     });
 
-    // Enrich payment data with user and item information
     const enrichPaymentData = async (payments) => {
         try {
             const enrichedData = await Promise.all(
                 payments.map(async (payment) => {
                     try {
-                        // Get user information
                         let userName = 'Unknown User';
                         let userEmail = 'No email';
                         
@@ -44,7 +42,6 @@ const Payments = () => {
                             }
                         }
 
-                        // Get item information
                         let itemName = 'Unknown Item';
                         let itemPhoto = null;
                         let shopName = 'Unknown Shop';
@@ -104,7 +101,6 @@ const Payments = () => {
         }
     };
 
-    // Fetch payments from API
     const fetchPayments = async (status = '') => {
         try {
             setLoading(true);
@@ -130,19 +126,16 @@ const Payments = () => {
             const data = await response.json();
             console.log('API Response:', data);
             
-            // Handle the API response structure
             if (data.payments && Array.isArray(data.payments)) {
                 setPayments(data.payments);
                 setTotalPayments(data.total || data.payments.length);
                 
-                // Enrich payment data
                 const enriched = await enrichPaymentData(data.payments);
                 setEnrichedPayments(enriched);
             } else if (Array.isArray(data)) {
                 setPayments(data);
                 setTotalPayments(data.length);
                 
-                // Enrich payment data
                 const enriched = await enrichPaymentData(data);
                 setEnrichedPayments(enriched);
             } else {
@@ -158,12 +151,10 @@ const Payments = () => {
         }
     };
 
-    // Fetch payment statistics
     const fetchPaymentStats = async () => {
         try {
             console.log('Fetching payment stats...');
             
-            // Try the dedicated stats endpoint first
             try {
                 const statsResponse = await fetch('http://localhost:5000/api/payment/payments/stats');
                 if (statsResponse.ok) {
@@ -181,7 +172,6 @@ const Payments = () => {
                             refunded: 0
                         };
                         
-                        // Process status stats
                         statsData.statusStats.forEach(stat => {
                             if (stat.status in newStats) {
                                 newStats[stat.status] = stat.count;
@@ -196,7 +186,6 @@ const Payments = () => {
                 console.log('Stats endpoint not available, calculating from payments list');
             }
             
-            // Fallback: calculate from payments list
             const response = await fetch('http://localhost:5000/api/payment/payments?limit=1000');
             
             if (!response.ok) {
@@ -228,13 +217,11 @@ const Payments = () => {
         }
     };
 
-    // Fetch payments on component mount and when filter changes
     useEffect(() => {
         fetchPayments(statusFilter);
         fetchPaymentStats();
     }, [statusFilter]);
 
-    // Handle delete payment - Fixed endpoint
     const handleDeletePayment = async (paymentId) => {
         const result = await Swal.fire({
             title: 'Are you sure?',
@@ -267,10 +254,8 @@ const Payments = () => {
             setEnrichedPayments(prevPayments => prevPayments.filter(payment => payment._id !== paymentId));
             setTotalPayments(prev => prev - 1);
             
-            // Refresh stats
             fetchPaymentStats();
             
-            // Show success message
             Swal.fire({
                 title: 'Deleted!',
                 text: 'Payment has been deleted successfully.',
@@ -288,10 +273,8 @@ const Payments = () => {
         }
     };
 
-    // Handle payment status update - Fixed endpoint
     const handleUpdatePaymentStatus = async (paymentId, newStatus) => {
         try {
-            // Fixed endpoint to match your backend route
             const response = await fetch(`http://localhost:5000/api/payment/payment/${paymentId}/status`, {
                 method: 'PUT',
                 headers: {
@@ -306,7 +289,6 @@ const Payments = () => {
 
             const result = await response.json();
 
-            // Update payment in both states
             const updatePaymentStatus = (payments) => 
                 payments.map(payment => 
                     payment._id === paymentId 
@@ -320,7 +302,6 @@ const Payments = () => {
             // Refresh stats
             fetchPaymentStats();
             
-            // Show success message
             Swal.fire({
                 title: 'Updated!',
                 text: `Payment status has been updated to ${newStatus}.`,
@@ -340,18 +321,15 @@ const Payments = () => {
         }
     };
 
-    // Handle refresh
     const handleRefresh = () => {
         fetchPayments(statusFilter);
         fetchPaymentStats();
     };
 
-    // Handle status filter change
     const handleStatusFilterChange = (status) => {
         setStatusFilter(status);
     };
 
-    // Format currency
     const formatCurrency = (amount, currency = 'USD') => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -359,7 +337,6 @@ const Payments = () => {
         }).format(amount);
     };
 
-    // Loading state
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">
@@ -369,7 +346,6 @@ const Payments = () => {
         );
     }
 
-    // Error state
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen">

@@ -9,7 +9,6 @@ const EditMatchModal = ({ match, isOpen, onClose, onSave }) => {
     MatchPhoto: ''
   });
   
-  // Initialize form with match data when modal opens
   useEffect(() => {
     if (match) {
       setFormData({
@@ -22,7 +21,6 @@ const EditMatchModal = ({ match, isOpen, onClose, onSave }) => {
     }
   }, [match]);
   
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -40,7 +38,6 @@ const EditMatchModal = ({ match, isOpen, onClose, onSave }) => {
     });
   };
   
-  // If modal is not open, don't render anything
   if (!isOpen) return null;
   
   return (

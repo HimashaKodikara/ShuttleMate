@@ -18,7 +18,6 @@ const EditCoachModal = ({
     const handleNextStep = () => {
         console.log('Form Data:', formData);
         
-        // Convert values to strings and then check if they're empty after trimming
         const coachName = String(formData.CoachName || '').trim();
         const tel = String(formData.Tel || '').trim();
         const trainingType = Array.isArray(formData.TrainingType) ? formData.TrainingType : [];
@@ -38,10 +37,8 @@ const EditCoachModal = ({
     // Handle court checkbox changes
     const handleCourtCheckboxChange = (courtId) => {
         if (handleCourtSelection) {
-            // If parent provides a handler, use it
             const updatedCourts = Array.isArray(formData.Courts) ? [...formData.Courts] : [];
             
-            // Toggle court selection
             const newCourts = updatedCourts.includes(courtId)
                 ? updatedCourts.filter(id => id !== courtId)
                 : [...updatedCourts, courtId];
@@ -52,7 +49,6 @@ const EditCoachModal = ({
                 }
             });
         } else {
-            // Fallback to local implementation
             const currentCourts = Array.isArray(formData.Courts) ? [...formData.Courts] : [];
             
             const updatedCourts = currentCourts.includes(courtId)
@@ -68,7 +64,6 @@ const EditCoachModal = ({
         }
     };
 
-    // Handle training type changes
     const localHandleTrainingTypeChange = (e) => {
         if (handleTrainingTypeChange) {
             handleTrainingTypeChange(e);

@@ -32,14 +32,11 @@ const Timeline = () => {
     <div className="max-w-4xl p-4 mx-auto">
       <h2 className="mb-8 text-3xl font-bold text-center">Main Categories </h2>
       <div className="relative">
-        {/* Vertical line */}
         <div className="absolute w-1 h-full transform -translate-x-1/2 bg-blue-200 left-1/2"></div>
         
         {TimelineData.map((item, index) => (
           <div key={index} className="relative mb-12">
-            {/* Content container */}
             <div className={`flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
-              {/* Timeline content */}
               <div className="w-1/2 px-6">
                 <div className={`${index % 2 === 0 ? 'text-right' : 'text-left'}`}>
                  
@@ -53,7 +50,6 @@ const Timeline = () => {
                 <div className="w-4 h-4 bg-blue-500 border-4 border-white rounded-full"></div>
               </div>
 
-              {/* Image container */}
               <div className="w-1/2 px-6">
                 <div className={`${index % 2 === 0 ? 'pl-6' : 'pr-6'}`}>
                   <img

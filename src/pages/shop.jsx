@@ -28,7 +28,6 @@ const Shop = () => {
     const [uploadError, setUploadError] = useState('');
     const [step, setStep] = useState(1);
 
-    // Edit shop state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editFormData, setEditFormData] = useState({
         ShopName: '',
@@ -62,7 +61,6 @@ const Shop = () => {
         }));
     };
 
-    // Updated handleCategoryChange to handle both categoryName and priceRange
     const handleCategoryChange = (index, e) => {
         const { name, value } = e.target;
         setFormData((prev) => {
@@ -122,7 +120,6 @@ const Shop = () => {
         setStep(1);
     };
 
-    // Open the item modal with a specific shop and category
     const openItemModal = (shop, category) => {
         console.log("Opening item modal for shop:", shop._id);
         console.log("Selected Category:", category);
@@ -132,12 +129,10 @@ const Shop = () => {
         setIsItemModalOpen(true);
     };
 
-    // Function to handle adding a new item via API
     const handleAddItem = async (newItem) => {
         try {
             console.log("Adding new item:", newItem);
 
-            // After successful item addition, fetch fresh data
             await fetchShops();
 
             Swal.fire({
@@ -193,7 +188,7 @@ const Shop = () => {
         if (step === 1) {
             setStep(2);
         } else if (step === 2) {
-            setStep(3); // Add a step for brands
+            setStep(3); 
         } else {
             if (!formData.ShopPhoto) {
                 setUploadError('Please upload a shop photo.');
@@ -204,7 +199,7 @@ const Shop = () => {
             setUploadError('');
     
             try {
-                // Upload shop photo
+                
                 const shopPhotoRef = ref(storage, `shops/${formData.ShopPhoto.name}`);
                 const shopPhotoUpload = uploadBytesResumable(shopPhotoRef, formData.ShopPhoto);
                 
@@ -217,7 +212,6 @@ const Shop = () => {
                     );
                 });
     
-                // Upload brand images and gather their URLs
                 const brandsWithImages = await Promise.all(
                     formData.brands.map(async (brand) => {
                         if (brand.images instanceof File) {
@@ -242,7 +236,6 @@ const Shop = () => {
                     })
                 );
     
-                // Include priceRange in the categories
                 const categoriesWithFixedItems = formData.categories.map(category => ({
                     categoryName: category.categoryName,
                     priceRange: category.priceRange,
@@ -290,7 +283,6 @@ const Shop = () => {
     };
     
     const handleDeleteShop = async (id) => {
-        // Check if shop exists
         if (!shops.find(shop => shop._id === id)) {
             Swal.fire({
                 title: "Error!",
@@ -342,7 +334,7 @@ const Shop = () => {
             ShopPhotoUrl: shop.ShopPhoto,
             categories: shop.categories?.map(cat => ({
                 ...cat,
-                priceRange: cat.priceRange || '', // Ensure priceRange is initialized
+                priceRange: cat.priceRange || '', 
                 items: cat.items || []
             })) || [],
             brands: shop.brands || []
@@ -371,13 +363,12 @@ const Shop = () => {
         const { name, value, type, files } = e.target;
 
         if (type === 'file' && files[0]) {
-            // Handle file upload preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 setEditFormData(prev => ({
                     ...prev,
                     ShopPhotoUrl: reader.result,
-                    ShopPhoto: files[0] // Store the actual file for upload
+                    ShopPhoto: files[0] 
                 }));
             };
             reader.readAsDataURL(files[0]);
@@ -389,7 +380,6 @@ const Shop = () => {
         }
     };
 
-    // Updated to handle all fields including priceRange
     const handleEditCategoryChange = (categoryIndex, e) => {
         const { name, value } = e.target;
         const updatedCategories = [...editFormData.categories];
@@ -461,13 +451,12 @@ const Shop = () => {
         const updatedBrands = [...editFormData.brands];
         
         if (name === 'images' && files && files[0]) {
-            // Handle file upload preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 updatedBrands[brandIndex] = {
                     ...updatedBrands[brandIndex],
                     imagePreview: reader.result,
-                    images: files[0] // store the file for upload
+                    images: files[0] 
                 };
                 setEditFormData(prev => ({
                     ...prev,
@@ -508,10 +497,10 @@ const Shop = () => {
             setUploading(true);
             setUploadError('');
 
-            // Process brands if needed
+            
             let updatedBrands = [...updatedData.brands];
             
-            // Handle uploads for any new brand images
+            
             for (let i = 0; i < updatedBrands.length; i++) {
                 if (updatedBrands[i].images instanceof File) {
                     const brandImageRef = ref(storage, `brands/${updatedBrands[i].images.name}`);
@@ -533,7 +522,6 @@ const Shop = () => {
                 }
             }
 
-            // Check if there's a new photo to upload
             if (updatedData.ShopPhoto && updatedData.ShopPhoto instanceof File) {
                 const storageRef = ref(storage, `shops/${updatedData.ShopPhoto.name}`);
                 const uploadTask = uploadBytesResumable(storageRef, updatedData.ShopPhoto);
@@ -548,7 +536,6 @@ const Shop = () => {
                     async () => {
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-                        // Update with new photo URL
                         const updateData = {
                             ShopName: updatedData.ShopName,
                             Tel: updatedData.Tel,
@@ -573,7 +560,6 @@ const Shop = () => {
                     }
                 );
             } else {
-                // No new photo, just update other fields
                 const updateData = {
                     ShopName: updatedData.ShopName,
                     Tel: updatedData.Tel,
@@ -613,7 +599,7 @@ const Shop = () => {
         if (editStep === 1) {
             setEditStep(2);
         } else if (editStep === 2) {
-            setEditStep(3); // Add step for brands
+            setEditStep(3); 
         } else {
             await handleUpdateShop(selectedShop._id, editFormData);
         }

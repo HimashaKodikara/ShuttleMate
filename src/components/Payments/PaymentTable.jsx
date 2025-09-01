@@ -183,7 +183,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
 
     const isAdmin = user?.role === 'admin';
     
-    // Conditionally add actions column based on admin status
     const columns = isAdmin ? [...baseColumns, deleteColumn] : baseColumns;
 
     const customStyles = {
@@ -203,7 +202,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
         },
         rows: {
             style: {
-                minHeight: '60px', // Increased height for better display of user/item info
+                minHeight: '60px', 
                 '&:hover': {
                     backgroundColor: '#f8fafc',
                 },
@@ -216,7 +215,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
         },
     };
 
-    // Custom component that renders nothing when there's no data
     const NoDataComponent = () => (
         <div className="flex flex-col items-center justify-center py-8">
             <CreditCard size={48} className="text-gray-400 mb-4" />
@@ -224,7 +222,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
         </div>
     );
 
-    // Loading component
     const LoadingComponent = () => (
         <div className="flex flex-col items-center justify-center py-8">
             <RefreshCw size={48} className="text-gray-400 mb-4 animate-spin" />
@@ -327,7 +324,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
                         </div>
                     )}
 
-                    {/* Status-specific information */}
                     {data.status === 'failed' && (
                         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
                             <div className="flex items-center space-x-2">
@@ -356,7 +352,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
         </div>
     );
 
-    // Conditional row styles for expanded rows
     const conditionalRowStyles = [
         {
             when: row => expandedPayment === row._id,
@@ -364,7 +359,6 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
                 backgroundColor: '#f1f5f9',
             },
         },
-        // Different colors based on payment status
         {
             when: row => row.status === 'failed',
             style: {
@@ -410,7 +404,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
                     onRowExpandToggled={(expanded, row) => toggleExpand(row._id)}
                     customStyles={customStyles}
                     conditionalRowStyles={conditionalRowStyles}
-                    defaultSortFieldId={6} // Sort by date by default (most recent first)
+                    defaultSortFieldId={6} 
                     defaultSortAsc={false}
                     highlightOnHover
                     responsive
@@ -424,7 +418,7 @@ const PaymentTable = ({ payments = [], onDelete, onUpdateStatus, loading = false
 PaymentTable.propTypes = {
     payments: PropTypes.array,
     onDelete: PropTypes.func.isRequired,
-    onUpdateStatus: PropTypes.func, // Optional function to update payment status
+    onUpdateStatus: PropTypes.func, 
     loading: PropTypes.bool
 };
 

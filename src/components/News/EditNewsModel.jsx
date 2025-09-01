@@ -86,7 +86,6 @@ const EditNewsModal = ({
                                 />
                             </div>
                             
-                            {/* Current Image Display */}
                             {formData.newsImage && typeof formData.newsImage === 'string' && (
                                 <div className="mb-4">
                                     <label className="block mb-2 font-semibold">Current Image</label>

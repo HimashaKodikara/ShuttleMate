@@ -164,7 +164,6 @@ const addAvailabilitySlot = async () => {
 };
 
 const deleteAvailabilitySlot = async (slotId) => {
-    // Show confirmation dialog first
     const result = await Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -218,7 +217,6 @@ const deleteAvailabilitySlot = async (slotId) => {
     } catch (err) {
         setError('Failed to delete availability slot');
         
-        // Show error alert for network/other errors
         Swal.fire({
             title: 'Error!',
             text: 'Failed to delete availability slot',
@@ -393,7 +391,6 @@ const saveEdit = async () => {
             </div>
           )}
 
-          {/* Availability View */}
           {activeView === 'availability' && (
             <>
               {loading ? (
@@ -402,7 +399,6 @@ const saveEdit = async () => {
                 </div>
               ) : (
                 <>
-                  {/* Add New Slot Form */}
                   {isAddingNew && (
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 mb-8">
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -607,7 +603,6 @@ const saveEdit = async () => {
             </>
           )}
 
-          {/* Bookings View */}
           {activeView === 'bookings' && (
             <>
               {bookingsLoading ? (

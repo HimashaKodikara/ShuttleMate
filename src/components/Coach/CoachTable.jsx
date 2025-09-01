@@ -90,23 +90,7 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
             button: true,
             center: true,
         },
-        // {
-        //     name: 'Delete',
-        //     cell: row => (
-        //         <div className="flex justify-center w-full">
-        //             <button
-        //                 className="flex items-center justify-center w-10 h-10 font-bold text-red-500 transition duration-300 ease-in-out transform rounded hover:bg-red-100 hover:scale-105"
-        //                 onClick={() => row._id && onDelete(row._id)}
-        //             >
-        //                 <Trash2 size={18} />
-        //             </button>
-        //         </div>
-        //     ),
-        //     ignoreRowClick: true,
-        //     allowOverflow: true,
-        //     button: true,
-        //     center: true,
-        // },
+       
     ];
 
     const deleteColumn = {
@@ -169,7 +153,7 @@ const CoacherTable = ({ coachers = [], onDelete, onUpdate }) => {
                         },
                         table: {
                             style: {
-                                backgroundColor: '#1e293b', // slate-800 equivalent
+                                backgroundColor: '#1e293b', 
                             },
                         },
                         rows: {

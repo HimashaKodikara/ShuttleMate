@@ -26,7 +26,6 @@ const Courts = () => {
     const [step, setStep] = useState(1);
     const [editingCourtId, setEditingCourtId] = useState(null);
 
-    // Fetch all courts from API
     const fetchCourts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/courts');
@@ -49,7 +48,7 @@ const Courts = () => {
             setFormData(response.data.court);
             setStep(2);
             setEditingCourtId(id);
-            setIsEditModalOpen(true); // Open Edit Coach Modal
+            setIsEditModalOpen(true); 
         } catch (error) {
             console.error('Error fetching coach:', error);
         }
@@ -58,7 +57,6 @@ const Courts = () => {
         fetchCourts();
     }, []);
 
-    // Handle input changes
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
@@ -67,7 +65,6 @@ const Courts = () => {
         }));
     };
 
-    // Handle changes for court directions
     const handleDirectionsChange = (index, e) => {
         const { name, value } = e.target;
         const updatedDirections = [...formData.Directions];
@@ -78,7 +75,6 @@ const Courts = () => {
         }));
     };
 
-    // Add new direction field
     const addDirection = () => {
         setFormData((prev) => ({
             ...prev,
@@ -86,7 +82,6 @@ const Courts = () => {
         }));
     };
 
-    // Remove direction field
     const removeDirection = (index) => {
         const updatedDirections = [...formData.Directions];
         updatedDirections.splice(index, 1);
@@ -96,7 +91,6 @@ const Courts = () => {
         }));
     };
 
-    // Toggle Modal
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setStep(1);
@@ -179,9 +173,7 @@ const Courts = () => {
         }
     };
 
-    // Delete court by ID
     const handleDeleteCourt = async (id) => {
-        // Check if court exists
         if (!courts.find(court => court._id === id)) {
             Swal.fire({
                 title: "Error!",

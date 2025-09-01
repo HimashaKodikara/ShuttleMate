@@ -55,14 +55,13 @@ const Register = () => {
           icon: 'success',
           confirmButtonText: 'OK'
         });
-        // Reset form
         setFormData({
           username: "",
           email: "",
           password: "",
           role: ""
         });
-        navigate("/login"); // Navigate to login after successful registration
+        navigate("/login"); 
       } else {
         const errorMessage = data.message || 'Registration failed';
         setError(errorMessage);

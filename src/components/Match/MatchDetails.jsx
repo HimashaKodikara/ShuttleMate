@@ -109,7 +109,7 @@ const MatchDetails = ({ matches = [], isLoading, onUpdateMatch, onDeleteMatch })
       style: {
         backgroundColor: '#1e3a8a',
         color: 'white',
-        justifyContent: 'center', // Center header text
+        justifyContent: 'center', 
         textAlign: 'center',
         fontSize: '14px',
       },
@@ -132,7 +132,7 @@ const MatchDetails = ({ matches = [], isLoading, onUpdateMatch, onDeleteMatch })
           pagination
           highlightOnHover
           responsive
-          customStyles={customStyles} // Apply custom styles to the table
+          customStyles={customStyles} 
         />
         {selectedMatch && (
           <MatchEditModal
